@@ -1,0 +1,22 @@
+@use '../variables';
+
+.nav-tabs {
+  display: flex;
+  padding: 0;
+  list-style: none;
+
+  .nav-item {
+    flex-grow: 1;
+    text-align: center;
+    padding-bottom: 0.25rem;
+
+    &.active {
+      border-bottom: 2px solid variables.$primary;
+    }
+
+    .nav-link {
+      display: block;
+      color: variables.$black;
+    }
+  }
+}

@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.IdentityServer4.Web", "SenseNet.IdentityServer4.Web\SenseNet.IdentityServer4.Web.csproj", "{BC4DB9FD-0623-49E3-9BF9-1DD80A68B937}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.IdentityServer4", "SenseNet.IdentityServer4\SenseNet.IdentityServer4.csproj", "{0BC11976-6055-4AA5-8026-76A67FAD20FE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{1A4A5B26-20DF-4284-BA0D-D52D71D896C8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SenseNet.IdentityServer4.Tests", "Tests\SenseNet.IdentityServer4.Tests\SenseNet.IdentityServer4.Tests.csproj", "{1DC2989F-A5F7-4A84-A74B-E23534441ADD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC4DB9FD-0623-49E3-9BF9-1DD80A68B937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC4DB9FD-0623-49E3-9BF9-1DD80A68B937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC4DB9FD-0623-49E3-9BF9-1DD80A68B937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC4DB9FD-0623-49E3-9BF9-1DD80A68B937}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BC11976-6055-4AA5-8026-76A67FAD20FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BC11976-6055-4AA5-8026-76A67FAD20FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BC11976-6055-4AA5-8026-76A67FAD20FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BC11976-6055-4AA5-8026-76A67FAD20FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DC2989F-A5F7-4A84-A74B-E23534441ADD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DC2989F-A5F7-4A84-A74B-E23534441ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DC2989F-A5F7-4A84-A74B-E23534441ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DC2989F-A5F7-4A84-A74B-E23534441ADD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1DC2989F-A5F7-4A84-A74B-E23534441ADD} = {1A4A5B26-20DF-4284-BA0D-D52D71D896C8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8DC83E73-FDF8-4D9C-AD3B-8D896459D53D}
+	EndGlobalSection
+EndGlobal

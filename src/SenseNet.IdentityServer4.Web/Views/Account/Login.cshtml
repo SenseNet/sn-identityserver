@@ -1,0 +1,158 @@
+@using Microsoft.Extensions.Options
+@using SenseNet.IdentityServer4.Configuration
+@model LoginViewModel
+@inject IOptions<LoginPageOptions> LoginOptions;
+@{
+    var loginConfig = LoginOptions.Value;
+}
+
+<div class="page login row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                @if (loginConfig.DisplayRegistration)
+                {
+                    <ul class="nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" role="tab" aria-selected="false" asp-controller="Account"
+                               asp-action="Registration" asp-route-returnUrl="@Model.ReturnUrl">Sign Up</a>
+                        </li>
+                        <li class="nav-item active" role="presentation">
+                            <a class="nav-link" role="tab" aria-selected="true">Login</a>
+                        </li>
+                    </ul>
+                }
+
+                @if (Model.VisibleExternalProviders.Any() && loginConfig.DisplaySocialLoginSection)
+                {
+                    <div class="login-providers" id="socialLogins">
+                        @foreach (var provider in Model.VisibleExternalProviders)
+                        {
+                            <a asp-controller="External" asp-action="Challenge"
+                               asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ReturnUrl">
+                                <div class="login-providers-item">
+                                    <img src=@("/images/" + provider.DisplayName + ".svg" ) height="19" width="19">
+                                    <span>@provider.DisplayName</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+
+                    @if (Model.EnableLocalLogin)
+                    {
+                        <p class="login-providers-text">or</p>
+                    }
+                }
+
+                @if (loginConfig.DisplayDemoSection)
+                {
+                <form asp-route="Login" id="LoginForm">
+                    <div class="card-body">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div class="demo-repo-text">
+                            Try sensenet with demo repository by clicking the button below.<br />
+                            Keep in mind that this is a public repo rebuilt from scratch every day.
+                        </div>
+                        <div class="form-error">
+                            @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+                            {
+                                <h1 class="card-title">
+                                    Invalid login request
+                                </h1>
+                                <p class="alert">There are no login schemes configured for this client.</p>
+
+                            }
+                            <partial name="_ValidationSummary" />
+                        </div>
+                    </div>
+                    <div class="hidden">
+                        <fieldset class="form-fieldset">
+                            <div class="input-group @(@ViewData.ModelState["Username"] != null && @ViewData.ModelState["Username"].Errors.Count > 0 ? "field-validation-error": "")">
+                                <input class="form-control" asp-for="Username" value="businesscat">
+                            </div>
+                            <div class="input-group @(@ViewData.ModelState["Password"] != null && @ViewData.ModelState["Password"].Errors.Count > 0 ? "field-validation-error": "")">
+                                <input type="password" class="form-control" asp-for="Password" value="businesscat">
+                            </div>
+                        </fieldset>
+                    </div>
+                    @if (Model.EnableLocalLogin)
+                    {
+                        <button class="btn btn-primary btn-block card-button" name="button" value="login" data-test="demo-button">
+                            <span class="btn-animation">Login to demo repository</span>
+                        </button>
+                    }
+                </form>
+                }
+                else
+                {
+                <form asp-route="Login" id="LoginForm">
+                    <div class="card-body">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <div class="form-error">
+                            @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+                            {
+                                <h1 class="card-title">
+                                    Invalid login request
+                                </h1>
+                                <p class="alert">There are no login schemes configured for this client.</p>
+
+                            }
+                            <partial name="_ValidationSummary" />
+                        </div>
+                        @if (Model.EnableLocalLogin)
+                        {
+
+                            <fieldset class="form-fieldset">
+                                <div class="input-group @(@ViewData.ModelState["Username"] != null && @ViewData.ModelState["Username"].Errors.Count > 0 ? "field-validation-error": "")">
+                                    <span class="input-group-prepend"><img src="/images/at.svg" alt="username"></span>
+                                    <input class="form-control" autofocus asp-for="Username"
+                                           placeholder="yours@example.com">
+                                </div>
+                                <div class="input-group @(@ViewData.ModelState["Password"] != null && @ViewData.ModelState["Password"].Errors.Count > 0 ? "field-validation-error": "")">
+                                    <span class="input-group-prepend"><img src="/images/lock.svg" alt="password" /></span>
+                                    <input type="password" class="form-control" autocomplete="off" asp-for="Password"
+                                           placeholder="your password">
+                                </div>
+                            </fieldset>
+                        }
+                    </div>
+
+                    @if (Model.EnableLocalLogin)
+                    {
+                        <button class="btn btn-primary btn-block card-button" name="button" value="login">
+                            <span class="btn-animation">Login</span>
+                        </button>
+                    }
+                </form>
+                }
+            </div>
+            <div class="login-terms">
+                @if (Model.EnableLocalLogin && !loginConfig.DisplayDemoSection)
+                {
+                    <p>
+                        <a class="btn btn-animation btn-text" asp-controller="Account" asp-action="ForgottenPassword"
+                        asp-route-returnUrl="@Model.ReturnUrl">Forgot password</a>
+                    </p>
+                }
+                @if (loginConfig.DisplayOtherRepositoryButton)
+                {
+                    <p>
+                        <button class="btn btn-text btn-animation" name="button" value="cancel" form="LoginForm">
+                            Login to another repository
+                        </button>
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

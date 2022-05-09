@@ -1,0 +1,28 @@
+@use './utils/functions';
+
+$primary: #26a69a;
+$white: #fff;
+$black: #000;
+$red: #ff0000;
+$gray: #c9c9c9;
+$gray-light: #d3d3d3;
+$footer: #353b4e;
+
+
+$danger: #ff5151;
+$danger-light: #ffc8c8;
+
+$font-family-base: 'Inter';
+
+$grid-breakpoints: (
+  xxs: 0,
+  xs: 400px,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+
+@include functions.assert-ascending($grid-breakpoints, '$grid-breakpoints');
+@include functions.assert-starts-at-zero($grid-breakpoints, '$grid-breakpoints');

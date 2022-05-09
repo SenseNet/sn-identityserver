@@ -1,0 +1,57 @@
+@using Microsoft.Extensions.Options
+@using SenseNet.IdentityServer4.Configuration
+@model LoginViewModel
+
+@inject IOptions<LoginPageOptions> LoginOptions;
+@{
+    var loginConfig = LoginOptions.Value;
+}
+
+@section scripts
+{
+    @if (loginConfig.AddAcceptPrivacyScript)
+    {
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                Sensenet.loadTermsOfUse()
+            })
+        </script>
+    }
+}
+
+<div class="page row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <form asp-controller="External" asp-action="AgreeToTerms">
+                    <div class="card-body">
+                        <p class="text-center">
+                            Please accept terms and conditions
+                        </p>
+
+                        <div id="termsContainer"></div>
+
+                        <p class="text-center">
+                            <a class="download-link"
+                               href="https://sncom.service.sensenet.com/Root/Content/SensenetDotCom/pages/terms-of-use/terms-of-use-20200924.pdf"
+                               download title="Download terms of use">Download terms of use in pdf</a>
+                        </p>
+
+                    </div>
+                    <button class="btn btn-primary btn-block card-button" name="button" value="agree">
+                        <span class="btn-animation">Accept</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

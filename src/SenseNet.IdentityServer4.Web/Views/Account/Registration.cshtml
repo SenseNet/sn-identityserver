@@ -1,0 +1,147 @@
+﻿@using Microsoft.Extensions.Options
+@using SenseNet.IdentityServer4.Configuration
+@using SenseNet.IdentityServer4.Web.Captcha
+@model RegistrationViewModel
+@inject IOptions<LoginPageOptions> LoginOptions;
+@{
+    var loginConfig = LoginOptions.Value;
+}
+@inject IOptions<RecaptchaOptions> CaptchaOptions;
+@{
+    var captchaConfig = CaptchaOptions.Value;
+}
+
+@section Scripts {
+    @if (loginConfig.AddCaptcha)
+    {
+        <script src="https://www.google.com/recaptcha/enterprise.js?render=@captchaConfig.SiteKey"></script>
+        <script>
+            grecaptcha.enterprise.ready(function() {
+                grecaptcha.enterprise.execute('@captchaConfig.SiteKey', { action: 'register' }).then(function(token) {
+                    document.getElementById("CaptchaToken").value = token;
+                });
+            });
+        </script>
+    }
+}
+
+<div class="page registration row">
+    @if (loginConfig.DisplayRegistrationExplanation)
+    {
+    <div class="column column-white hidden-md">
+        <div class="page-content">
+            <h1 class="registration-title">
+                Start exploring sensenet and build your own solution
+            </h1>
+            <h2 class="registration-title">
+                @if (!string.IsNullOrEmpty(loginConfig.RegistrationWelcomeText))
+                {
+                    @Html.Raw(loginConfig.RegistrationWelcomeText)
+                }
+                else
+                {
+                    @:Get started by using your GitHub or Google account, or fill out the form to sign up.
+                }
+            </h2>
+            <div class="registration-description">
+                <p>
+                    Developer plan is ideal for evaluation and small projects. Free forever, no credit card needed.
+                    You
+                    can upgrade or cancel anytime.
+                </p>
+                <ul class="registration-benefits">
+                    <li>all your content and data are stored in the cloud</li>
+                    <li>no maintenance-related tasks and installation</li>
+                    <li>easy onboarding, updates and patches</li>
+                    <li>multiple plans for different needs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    }
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <ul class="nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item active" role="presentation">
+                        <a class="nav-link" role="tab" aria-selected="true">Sign Up</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" role="tab" aria-selected="false" asp-controller="Account" asp-action="Login"
+                            asp-route-returnUrl="@Model.ReturnUrl">Login</a>
+                    </li>
+                </ul>
+
+                @if (Model.VisibleExternalProviders.Any() && loginConfig.DisplaySocialLoginSection)
+                {
+                    <div class="registration-providers" id="socialLogins">
+                        @foreach (var provider in Model.VisibleExternalProviders)
+                        {
+                            <a asp-controller="External" asp-action="Challenge"
+                        asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ReturnUrl">
+                                <div class="registration-providers-item">
+                                    <img src=@("/images/" + provider.DisplayName + ".svg" ) height="19" width="19">
+                                    <span>@provider.DisplayName</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+
+                    <p class="registration-providers-text">or</p>
+                }
+
+                <form asp-route="Registration">
+                    <div class="card-body">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <input type="hidden" asp-for="CaptchaToken" />
+                        <div class="form-error">
+                            @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+                            {
+                                <div class="alert">
+                                    <strong>Invalid login request</strong>
+                                    There are no login schemes configured for this client.
+                                </div>
+                            }
+                            <partial name="_ValidationSummary" />
+                        </div>
+                        <fieldset class="form-fieldset">
+                            <div class="input-group @(@ViewData.ModelState["Username"] != null && @ViewData.ModelState["Username"].Errors.Count > 0 ? "field-validation-error": "")">
+                                <span class="input-group-prepend"><img src="/images/at.svg" alt="username"></span>
+                                <input class="form-control" autofocus asp-for="Username"
+                                    placeholder="yours@example.com">
+                            </div>
+                            <div class="input-group @(@ViewData.ModelState["Password"] != null && @ViewData.ModelState["Password"].Errors.Count > 0 ? "field-validation-error": "")">
+                                <span class="input-group-prepend"><img src="/images/lock.svg" alt="password" /></span>
+                                <input type="password" class="form-control" autocomplete="off" asp-for="Password"
+                                    placeholder="your password">
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <button class="btn btn-primary btn-block card-button g-recaptcha"
+                            name="button" value="register" id="registrationSubmit">
+                        <span class="btn-animation">Create your free account</span>
+                    </button>
+                </form>
+            </div>
+            <div class="registration-terms">
+                <p>
+                    <strong>Free forever, no credit card required.</strong>
+                </p>
+                By signing up, you agree to our <a
+                    href="https://sncom.service.sensenet.com/Root/Content/SensenetDotCom/pages/terms-of-use/terms-of-use-20200924.pdf"
+                    target="_blank">Terms of Use</a> and acknowledge our <a
+                    href="https://www.sensenet.com/privacy-policy" target="_blank">Privacy Policy</a>.
+            </div>
+        </div>
+    </div>
+</div>

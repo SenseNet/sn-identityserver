@@ -1,0 +1,58 @@
+﻿@model LoggedOutViewModel
+
+@{
+    // set this so the layout rendering sees an anonymous user
+    ViewData["signed-out"] = true;
+}
+
+<div class="page row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <div class="card-body">
+                    <h1 class="card-title">Logout</h1>
+
+                    <p class="text-center">You have successfully logged out.</p>
+
+                    @if (Model.PostLogoutRedirectUri != null)
+                    {
+                        <p>If you are not redirected back, click the button to return.</p>
+                    }
+                </div>
+
+                @if (Model.PostLogoutRedirectUri != null)
+                {
+                    <a class="btn btn-primary btn-block PostLogoutRedirectUri card-button" href="@Model.PostLogoutRedirectUri">
+                        <span class="btn-animation">Return to the app</span>
+                    </a>
+                }
+            </div>
+
+            @if (Model.SignOutIframeUrl != null)
+            {
+                <iframe width="0" height="0" frameBorder="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    @if (Model.AutomaticRedirectAfterSignOut)
+    {
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function () {
+                Sensenet.signoutRedirect();
+            })
+        </script>
+    }
+}

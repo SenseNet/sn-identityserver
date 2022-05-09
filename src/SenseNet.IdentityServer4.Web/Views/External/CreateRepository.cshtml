@@ -1,0 +1,52 @@
+@using Microsoft.Extensions.Options
+@using SenseNet.IdentityServer4.Configuration
+@model CreateRepositoryInputModel
+@inject IOptions<LoginPageOptions> LoginOptions;
+@{
+    var loginConfig = LoginOptions.Value;
+}
+@section scripts
+{
+
+}
+
+    <div class="page row">
+        <div class="column">
+            <div class="page-content">
+                <div class="card">
+                    <div class="card-header">
+                        <figure class="logo-wrapper">
+                            <a href="https://sensenet.com" target="_blank">
+                                <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                                <figcaption class="logo-caption">sensenet</figcaption>
+                            </a>
+                        </figure>
+                    </div>
+                    <form asp-controller="External" asp-action="CreateRepository">
+                        <div class="card-body">
+                            <h1 class="card-title">Your sensenet repo is almost ready!</h1>
+
+                            <p>
+                                As a last step you need to provide a password for your repository admin user.
+                                You'll be able log in with username: <strong>@Model.Email</strong> and password you type below.
+                                Once your repo is up and running you will receive a confirmation email.
+                            </p>
+                            <br />
+
+                            <fieldset class="form-fieldset">
+                                <div class="input-group">
+                                    <span class="input-group-prepend"><img src="/images/lock.svg" alt="password" /></span>
+                                    <input type="password" class="form-control" asp-for="Password" autocomplete="off" placeholder="admin password" />
+                                </div>
+
+                            </fieldset>
+
+                        </div>
+                        <button class="btn btn-primary btn-block card-button" name="button" value="create">
+                            <span class="btn-animation">Create</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

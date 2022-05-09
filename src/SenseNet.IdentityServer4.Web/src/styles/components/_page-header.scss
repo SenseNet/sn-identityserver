@@ -1,0 +1,39 @@
+@use '../variables';
+@use '../utils/breakpoints';
+
+.page-header {
+  height: 80px;
+  background-color: variables.$footer;
+  position: sticky;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: variables.$white;
+
+  .header-image {
+    padding-left: 32px;
+
+    @include breakpoints.media-breakpoint-down(sm) {
+      padding-left: 16px;
+    }
+  }
+
+  .header-text {
+    padding-right: 32px;
+    opacity: 0.87;
+
+    @include breakpoints.media-breakpoint-down(sm) {
+      padding-right: 16px;
+    }
+
+    .header-link {
+      padding-left: 10px;
+      color: variables.$primary;
+      opacity: 1;
+
+      @include breakpoints.media-breakpoint-down(sm) {
+        padding-left: 5px;
+      }
+    }
+  }
+}

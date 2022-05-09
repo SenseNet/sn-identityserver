@@ -1,0 +1,57 @@
+@using SenseNet.IdentityServer4.Web
+@{
+    var version = typeof(IdentityServer4.Hosting.IdentityServerMiddleware).Assembly.GetName().Version.ToString();
+
+    var envVars = Environment.GetEnvironmentVariables();
+
+    var containerName = (string)envVars["SENSENET_CONTAINER_NAME"];
+}
+
+<div class="page row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <div class="card-body">
+                    <h1 class="card-title">Welcome to IdentityServer4</h1>
+
+                    <div class="text-center">
+                        <small>(version @version)</small>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(containerName))
+                    {
+                        <p>Container: @containerName</p>
+                    }
+
+                    <p>
+                        IdentityServer publishes a
+                        <a href="~/.well-known/openid-configuration">discovery document</a>
+                        where you can find metadata and links to all the endpoints, key material, etc.
+                    </p>
+
+                    <p>
+                        Click <a href="~/grants">here</a> to manage your stored grants.
+                    </p>
+
+                    <p>
+                        Here are links to the
+                        <a href="https://github.com/identityserver/IdentityServer4">source code repository</a>,
+                        and <a href="https://github.com/IdentityServer/IdentityServer4/tree/master/samples">
+                            ready to use
+                            samples
+                        </a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+@model ErrorViewModel
+
+@{
+    var error = Model?.Error?.Error;
+    var errorDescription = Model?.Error?.ErrorDescription;
+    var request_id = Model?.Error?.RequestId;
+}
+
+<div class="page row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <div class="card-body">
+                    <h1 class="card-title">Error</h1>
+
+                    <div class="text-center alert">
+                        Sorry, there was an error.
+
+                        @if (error != null)
+                        {
+                            <p class="text-center">
+                                <strong>
+                                    <em>
+                                        @error
+                                    </em>
+                                </strong>
+
+                                @if (errorDescription != null)
+                                {
+                                    <div>@errorDescription</div>
+                                }
+                            </p>
+                        }
+                    </div>
+
+                    @if (request_id != null)
+                    {
+                        <p class="text-center"><strong>Request id:</strong> @request_id</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
