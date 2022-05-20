@@ -17,6 +17,7 @@ using Microsoft.Extensions.Options;
 using SenseNet.IdentityServer4;
 using SenseNet.IdentityServer4.Configuration;
 using SenseNet.IdentityServer4.Web.Captcha;
+using Microsoft.Extensions.Configuration;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -41,6 +42,7 @@ namespace IdentityServer4.Quickstart.UI
         private readonly SnClientConnectorFactory _clientConnectorFactory;
         private readonly IRecaptchaService _recaptchaService;
         private readonly IRegistrationManager _registrationManager;
+        private readonly IConfiguration _configuration;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
@@ -54,7 +56,8 @@ namespace IdentityServer4.Quickstart.UI
             SnClientConnectorFactory clientConnectorFactory,
             IRecaptchaService recaptchaService,
             IOptions<NotificationOptions> notificationOptions,
-            IRegistrationManager registrationManager)
+            IRegistrationManager registrationManager,
+            IConfiguration configuration)
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
             // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
@@ -72,6 +75,7 @@ namespace IdentityServer4.Quickstart.UI
             _recaptchaService = recaptchaService;
             _notificationOptions = notificationOptions.Value;
             _registrationManager = registrationManager;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -138,7 +142,10 @@ namespace IdentityServer4.Quickstart.UI
             {
                 // SN: validate user
                 var returnUrl = HttpContext?.Request?.Form["ReturnUrl"].FirstOrDefault();
-                var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+                var serverUrl = _configuration["sensenet:authentication:containerHost"];
+                if (string.IsNullOrWhiteSpace(serverUrl)) 
+                    serverUrl = returnUrl;
+                var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                     .ConfigureAwait(false);
 
                 // validate username/password against the repository
@@ -257,7 +264,10 @@ namespace IdentityServer4.Quickstart.UI
             if (button == "agree" && !string.IsNullOrEmpty(model.Token))
             {
                 var returnUrl = HttpContext?.Request?.Form["ReturnUrl"].FirstOrDefault();
-                var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+                var serverUrl = _configuration["sensenet:authentication:containerHost"];
+                if (string.IsNullOrWhiteSpace(serverUrl))
+                    serverUrl = returnUrl;
+                var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                     .ConfigureAwait(false);
 
                 _logger.LogTrace($"Agree to terms action parameters are valid. Username: {model.Username}, " +
@@ -401,7 +411,11 @@ namespace IdentityServer4.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                var connector = await _clientConnectorFactory.CreateAsync(model.ReturnUrl)
+                var returnUrl = model.ReturnUrl;
+                var serverUrl = _configuration["sensenet:authentication:containerHost"];
+                if (string.IsNullOrWhiteSpace(serverUrl))
+                    serverUrl = returnUrl;
+                var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                     .ConfigureAwait(false);
 
                 SnUser user;
@@ -513,7 +527,10 @@ namespace IdentityServer4.Quickstart.UI
             if (string.IsNullOrEmpty(token))
                 throw new ArgumentNullException(nameof(token));
 
-            var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+            var serverUrl = _configuration["sensenet:authentication:containerHost"];
+            if (string.IsNullOrWhiteSpace(serverUrl))
+                serverUrl = returnUrl;
+            var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                 .ConfigureAwait(false);
 
             _logger.LogTrace($"Confirming registration for token {token}. Repository: {connector.Server?.Url}");
@@ -569,7 +586,10 @@ namespace IdentityServer4.Quickstart.UI
             if (string.IsNullOrEmpty(token))
                 throw new ArgumentNullException(nameof(token));
 
-            var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+            var serverUrl = _configuration["sensenet:authentication:containerHost"];
+            if (string.IsNullOrWhiteSpace(serverUrl))
+                serverUrl = returnUrl;
+            var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                 .ConfigureAwait(false);
 
             var user = await connector.GetUserByTokenAsync(token).ConfigureAwait(false);
@@ -591,7 +611,10 @@ namespace IdentityServer4.Quickstart.UI
             if (string.IsNullOrEmpty(token))
                 throw new ArgumentNullException(nameof(token));
 
-            var connector = await _clientConnectorFactory.CreateAsync(vm.ReturnUrl)
+            var serverUrl = _configuration["sensenet:authentication:containerHost"];
+            if (string.IsNullOrWhiteSpace(serverUrl))
+                serverUrl = vm.ReturnUrl;
+            var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                 .ConfigureAwait(false);
             var user = await connector.SetPasswordByTokenAsync(token, vm.Password).ConfigureAwait(false);
 
@@ -629,7 +652,10 @@ namespace IdentityServer4.Quickstart.UI
                 }
 
                 var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-                var connector = await _clientConnectorFactory.CreateAsync(model.ReturnUrl)
+                var serverUrl = _configuration["sensenet:authentication:containerHost"];
+                if (string.IsNullOrWhiteSpace(serverUrl))
+                    serverUrl = model.ReturnUrl;
+                var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
                     .ConfigureAwait(false);
 
                 await connector.SendChangePasswordMailAsync(model.Username, model.ReturnUrl).ConfigureAwait(false);

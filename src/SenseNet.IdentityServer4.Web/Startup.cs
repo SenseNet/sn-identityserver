@@ -53,7 +53,7 @@ namespace SenseNet.IdentityServer4.Web
                     options.Events.RaiseFailureEvents = true;
                     options.Events.RaiseSuccessEvents = true;
                     if (Environment.IsDevelopment()) {
-                        options.IssuerUri = "http://SenseNet.IdentityServer4.Web";
+                        options.IssuerUri = Configuration["sensenet:authentication:containerHost"];
                     }
                 })
                 .AddSnIdentityServerServices();
