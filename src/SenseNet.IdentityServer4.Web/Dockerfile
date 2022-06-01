@@ -5,7 +5,7 @@ WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 # set up node
 ENV NODE_VERSION 12.13.1
 ENV NODE_DOWNLOAD_URL https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.gz
@@ -20,6 +20,7 @@ RUN curl -SL "$NODE_DOWNLOAD_URL" --output nodejs.tar.gz \
 # set up yarn
 ENV YARN_VERSION 1.21.1
 
+RUN apt-get update && apt-get install -y gpg
 RUN set -ex \
   && wget -qO- https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --import \
   && curl -fSLO --compressed "https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz" \
@@ -32,18 +33,14 @@ RUN set -ex \
   && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz
 
 WORKDIR /src
-COPY ["SenseNet.IdentityServer4.Docker.sln", "."]
-COPY ["SenseNet.IdentityServer4/SenseNet.IdentityServer4.csproj", "SenseNet.IdentityServer4/"]
-COPY ["SenseNet.IdentityServer4.Web/SenseNet.IdentityServer4.Web.csproj", "SenseNet.IdentityServer4.Web/"]
-RUN dotnet restore "SenseNet.IdentityServer4.Docker.sln"
 COPY . .
+RUN dotnet restore "SenseNet.IdentityServer4.sln" 
 
 WORKDIR "/src/SenseNet.IdentityServer4.Web/"
 
 RUN yarn install
 RUN yarn build
 
-#RUN ls SenseNet.IdentityServer4.Web
 RUN dotnet build "SenseNet.IdentityServer4.Web.csproj" -c Release -o /app/build
 
 FROM build AS publish
