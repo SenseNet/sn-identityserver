@@ -25,11 +25,14 @@
     },
     "Docker": {
       "commandName": "Docker",
+      "environmentVariables": {
+        "sensenet:Authentication:containerHost": "http://SnWebApplication"
+      },
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
-      "useSSL": true,
-      "sslPort": 44311
+      "sslPort": 44311,
+      "useSSL": true
     }
   }
 }
