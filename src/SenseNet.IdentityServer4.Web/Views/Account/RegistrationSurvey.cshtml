@@ -1,0 +1,58 @@
+﻿@model RegistrationSurveyViewModel
+
+<div class="page row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+
+                <div class="card-body">
+                    <h1 class="card-title">Please tell us how do you plan to use sensenet!</h1>
+
+                    <form asp-route="RegistrationSurvey" id="SurveyForm">
+                        <input type="hidden" asp-for="UserId" />
+                        
+                        <fieldset class="form-fieldset">
+                            <div class="input-group">
+                                <input class="form-control" autofocus asp-for="Role">
+                            </div>
+                            <div class="input-group">
+                                <input class="form-control" asp-for="ProjectType">
+                            </div>
+                            <div class="input-group">
+                                <input class="form-control" asp-for="Experience" type="range" min="1" max="10">
+                            </div>
+                            <div class="input-group">
+                                <input class="form-control" asp-for="AppDevelopmentMode">
+                            </div>
+                            <div class="input-group">
+                                Which features do you need the most? Please choose max 3 of the following options.
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Custom content types with metadata<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Permission system<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> User and group management<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Advanced search<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Huge number of content<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Rich REST API<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Client controls and development kit<br />
+                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Webhooks<br />
+                            </div>
+                            
+                            
+                        </fieldset>
+                        
+                        <button class="btn btn-primary btn-block card-button" name="button" value="submit">
+                            <span class="btn-animation">Submit</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

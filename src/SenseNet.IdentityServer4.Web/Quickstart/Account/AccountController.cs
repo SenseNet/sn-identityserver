@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SenseNet.IdentityServer4;
@@ -442,6 +443,16 @@ namespace IdentityServer4.Quickstart.UI
 
                     await SendRegistrationNotification(model);
 
+                    if (_loginOptions.RegistrationSurvey)
+                    {
+                        // redirect to a survey page
+                        return View("RegistrationSurvey", new RegistrationSurveyViewModel
+                        {
+                            //UNDONE: cache this for a short time with the real user id
+                            UserId = Guid.NewGuid().ToString()
+                        });
+                    }
+
                     // redirect to a dedicated thanks page, without sign in
                     return View("ConfirmEmailSent", model);
                 }
@@ -458,6 +469,38 @@ namespace IdentityServer4.Quickstart.UI
             }
             
             return View(model);
+        }
+
+        private static readonly MemoryCache UserCache = new MemoryCache(new MemoryDistributedCacheOptions());
+
+        [HttpGet]
+        public async Task<IActionResult> RegistrationSurvey()
+        {
+            //UNDONE: disable or delete GET action: this page should be displayed only
+            // at the end of registration.
+
+            var userToken = Guid.NewGuid().ToString();
+            UserCache.Set(userToken, 123, new MemoryCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                Size = 1
+            });
+            
+            return View(new RegistrationSurveyViewModel()
+            {
+                UserId = userToken
+            });
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
+        {
+            if (UserCache.TryGetValue(model.UserId, out var userId))
+            {
+                //UNDONE: save survey answers on the user
+            }
+
+            return View("ConfirmEmailSent", new RegistrationViewModel());
         }
 
         private async Task SendRegistrationNotification(RegistrationViewModel model, Exception exception)
