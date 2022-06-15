@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
 using System;
+using System.Linq;
 
 namespace SenseNet.IdentityServer4
 {
@@ -27,7 +28,7 @@ namespace SenseNet.IdentityServer4
 
                     // in normal cases this parameter is available
                     if (query.ContainsKey("snrepo"))
-                        snRepoUrl = query["snrepo"];
+                        snRepoUrl = query["snrepo"].FirstOrDefault();
 
                     if (string.IsNullOrEmpty(snRepoUrl) && query.TryGetValue("redirect_uri", out var redirectUri))
                     {
