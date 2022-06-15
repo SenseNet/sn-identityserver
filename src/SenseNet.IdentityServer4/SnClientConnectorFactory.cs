@@ -52,7 +52,7 @@ namespace SenseNet.IdentityServer4
 
             var server = new ServerContext
             {
-                Url = repoUrl.TrimEnd('/', ' '),
+                Url = SnClientStore.GetRealUrl(repoUrl),
                 IsTrusted = WebHostEnvironment.IsDevelopment(),
                 Authentication =
                 {
@@ -71,7 +71,7 @@ namespace SenseNet.IdentityServer4
         {
             var server = new ServerContext
             {
-                Url = repoUrl.AppendSchema().TrimEnd('/', ' '),
+                Url = SnClientStore.GetRealUrl(repoUrl),
                 IsTrusted = WebHostEnvironment.IsDevelopment()
             };
 

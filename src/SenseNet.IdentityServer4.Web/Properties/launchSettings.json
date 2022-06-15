@@ -26,7 +26,6 @@
     "Docker": {
       "commandName": "Docker",
       "environmentVariables": {
-        "sensenet:Authentication:containerHost": "http://SnWebApplication"
       },
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",

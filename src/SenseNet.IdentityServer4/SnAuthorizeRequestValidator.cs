@@ -1,18 +1,15 @@
 ﻿using System.Threading.Tasks;
 using IdentityServer4.Validation;
-using Microsoft.Extensions.Configuration;
 
 namespace SenseNet.IdentityServer4
 {
     public class SnAuthorizeRequestValidator : ICustomAuthorizeRequestValidator
     {
         private readonly SnClientConnectorFactory _clientConnectorFactory;
-        private readonly IConfiguration _configuration;
 
-        public SnAuthorizeRequestValidator(SnClientConnectorFactory clientConnectorFactory, IConfiguration configuration)
+        public SnAuthorizeRequestValidator(SnClientConnectorFactory clientConnectorFactory)
         {
             _clientConnectorFactory = clientConnectorFactory;
-            _configuration = configuration;
         }
 
         public async Task ValidateAsync(CustomAuthorizeRequestValidationContext context)
@@ -43,10 +40,7 @@ namespace SenseNet.IdentityServer4
                 return;
             }
 
-            var serverUrl = _configuration["sensenet:authentication:containerHost"];
-            if (string.IsNullOrWhiteSpace(serverUrl))
-                serverUrl = repoUrl;
-            var connector = await _clientConnectorFactory.CreateAsync(serverUrl)
+            var connector = await _clientConnectorFactory.CreateAsync(repoUrl)
                 .ConfigureAwait(false);
 
             // if the user is not allowed to log in using this client id, deny access
