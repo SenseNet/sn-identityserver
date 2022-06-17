@@ -401,8 +401,7 @@ namespace IdentityServer4.Quickstart.UI
 
             if (ModelState.IsValid)
             {
-                var returnUrl = model.ReturnUrl;
-                var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+                var connector = await _clientConnectorFactory.CreateAsync(model.ReturnUrl)
                     .ConfigureAwait(false);
 
                 SnUser user;
@@ -513,7 +512,7 @@ namespace IdentityServer4.Quickstart.UI
         {
             if (string.IsNullOrEmpty(token))
                 throw new ArgumentNullException(nameof(token));
-            
+
             var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
                 .ConfigureAwait(false);
 
@@ -629,7 +628,6 @@ namespace IdentityServer4.Quickstart.UI
                     return View(model);
                 }
 
-                //var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
                 var connector = await _clientConnectorFactory.CreateAsync(model.ReturnUrl)
                     .ConfigureAwait(false);
 
