@@ -484,61 +484,47 @@ namespace IdentityServer4.Quickstart.UI
         }
 
         private static readonly MemoryCache UserCache = new MemoryCache(new MemoryDistributedCacheOptions());
-
-        [HttpGet]
-        public async Task<IActionResult> RegistrationSurvey()
-        {
-            //UNDONE: disable or delete GET action: this page should be displayed only
-            // at the end of registration.
-
-            var userToken = Guid.NewGuid().ToString();
-
-            UserCache.Set(userToken, new RepositoryUser
-            {
-                UserId = 123,
-                ReturnUrl = "https://localhost:44362"
-            }, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-                Size = 1
-            });
-            
-            return View(new RegistrationSurveyViewModel
-            {
-                UserId = userToken
-            });
-        }
         
         [HttpPost]
         public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
         {
-            const string SuveyListPath = "/Root/Content/RegistrationSurvey";
+            const string surveyListPath = "/Root/Content/RegistrationSurvey";
 
-            if (UserCache.TryGetValue(model.UserId, out RepositoryUser user))
+            // load the user data from cache
+            if (!UserCache.TryGetValue(model.UserId, out RepositoryUser user))
+                return View("ConfirmEmailSent", new RegistrationViewModel());
+
+            var connector = await _clientConnectorFactory.CreateAsync(user.ReturnUrl)
+                .ConfigureAwait(false);
+
+            // check if the container exists before saving the result
+            if (!await SenseNet.Client.Content.ExistsAsync(surveyListPath, connector.Server).ConfigureAwait(false))
             {
-                //UNDONE: save survey answers
+                _logger.LogWarning($"Survey result could not be saved. Parent {surveyListPath} is missing from {connector.Server.Url}");
+                return View("ConfirmEmailSent", new RegistrationViewModel());
+            }
 
-                var connector = await _clientConnectorFactory.CreateAsync(user.ReturnUrl)
-                    .ConfigureAwait(false);
-
-                // check if the container exists before saving the result
-                if (await SenseNet.Client.Content.ExistsAsync(SuveyListPath, connector.Server).ConfigureAwait(false))
-                {
-                    dynamic userContent = await SenseNet.Client.Content.LoadAsync(user.UserId, connector.Server)
+            try
+            {
+                dynamic userContent = await SenseNet.Client.Content.LoadAsync(user.UserId, connector.Server)
                         .ConfigureAwait(false);
 
-                    await connector.CreateContentAsync(SuveyListPath, "RegistrationSurveyItem", null,
-                        new Dictionary<string, object>
-                        {
-                            { "RegisteredUserEmail", (string)userContent.Email },
-                            { "RegisteredUser", (int)userContent.Id },
-                            { "SurveyResultRole", model.Role },
-                            { "SurveyResultProjectType", model.ProjectType },
-                            { "SurveyResultExperience", model.Experience },
-                            { "SurveyResultAppDevelopmentMode", model.AppDevelopmentMode },
-                            { "SurveyResultFeatures", string.Join(',', model.Features) }
-                        }).ConfigureAwait(false);
-                }
+                // save a survey item in the repository for later use
+                await connector.CreateContentAsync(surveyListPath, "RegistrationSurveyItem", null,
+                    new Dictionary<string, object>
+                    {
+                    { "RegisteredUserEmail", (string)userContent.Email },
+                    { "RegisteredUser", (int)userContent.Id },
+                    { "SurveyResultRole", model.Role },
+                    { "SurveyResultProjectType", model.ProjectType },
+                    { "SurveyResultExperience", model.Experience },
+                    { "SurveyResultAppDevelopmentMode", model.AppDevelopmentMode },
+                    { "SurveyResultFeatures", string.Join(',', model.Features) }
+                    }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error during survey result saving: {ex.Message}. User: {user.UserId}, repository: {connector.Server.Url}");
             }
 
             return View("ConfirmEmailSent", new RegistrationViewModel());
