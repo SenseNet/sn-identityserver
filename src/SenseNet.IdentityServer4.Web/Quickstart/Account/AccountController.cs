@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -445,11 +446,22 @@ namespace IdentityServer4.Quickstart.UI
 
                     if (_loginOptions.RegistrationSurvey)
                     {
+                        var userToken = Guid.NewGuid().ToString();
+
+                        UserCache.Set(userToken, new RepositoryUser
+                        {
+                            UserId = user.Id,
+                            ReturnUrl = model.ReturnUrl
+                        }, new MemoryCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                            Size = 1
+                        });
+
                         // redirect to a survey page
                         return View("RegistrationSurvey", new RegistrationSurveyViewModel
                         {
-                            //UNDONE: cache this for a short time with the real user id
-                            UserId = Guid.NewGuid().ToString()
+                            UserId = userToken
                         });
                     }
 
@@ -480,13 +492,18 @@ namespace IdentityServer4.Quickstart.UI
             // at the end of registration.
 
             var userToken = Guid.NewGuid().ToString();
-            UserCache.Set(userToken, 123, new MemoryCacheEntryOptions()
+
+            UserCache.Set(userToken, new RepositoryUser
+            {
+                UserId = 123,
+                ReturnUrl = "https://localhost:44362"
+            }, new MemoryCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
                 Size = 1
             });
             
-            return View(new RegistrationSurveyViewModel()
+            return View(new RegistrationSurveyViewModel
             {
                 UserId = userToken
             });
@@ -495,9 +512,33 @@ namespace IdentityServer4.Quickstart.UI
         [HttpPost]
         public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
         {
-            if (UserCache.TryGetValue(model.UserId, out var userId))
+            const string SuveyListPath = "/Root/Content/RegistrationSurvey";
+
+            if (UserCache.TryGetValue(model.UserId, out RepositoryUser user))
             {
-                //UNDONE: save survey answers on the user
+                //UNDONE: save survey answers
+
+                var connector = await _clientConnectorFactory.CreateAsync(user.ReturnUrl)
+                    .ConfigureAwait(false);
+
+                // check if the container exists before saving the result
+                if (await SenseNet.Client.Content.ExistsAsync(SuveyListPath, connector.Server).ConfigureAwait(false))
+                {
+                    dynamic userContent = await SenseNet.Client.Content.LoadAsync(user.UserId, connector.Server)
+                        .ConfigureAwait(false);
+
+                    await connector.CreateContentAsync(SuveyListPath, "RegistrationSurveyItem", null,
+                        new Dictionary<string, object>
+                        {
+                            { "RegisteredUserEmail", (string)userContent.Email },
+                            { "RegisteredUser", (int)userContent.Id },
+                            { "SurveyResultRole", model.Role },
+                            { "SurveyResultProjectType", model.ProjectType },
+                            { "SurveyResultExperience", model.Experience },
+                            { "SurveyResultAppDevelopmentMode", model.AppDevelopmentMode },
+                            { "SurveyResultFeatures", string.Join(',', model.Features) }
+                        }).ConfigureAwait(false);
+                }
             }
 
             return View("ConfirmEmailSent", new RegistrationViewModel());

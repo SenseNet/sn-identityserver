@@ -18,7 +18,7 @@
 
                     <form asp-route="RegistrationSurvey" id="SurveyForm">
                         <input type="hidden" asp-for="UserId" />
-                        
+
                         <fieldset class="form-fieldset">
                             <div class="input-group">
                                 <input class="form-control" autofocus asp-for="Role">
@@ -34,14 +34,16 @@
                             </div>
                             <div class="input-group">
                                 Which features do you need the most? Please choose max 3 of the following options.
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Custom content types with metadata<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Permission system<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> User and group management<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Advanced search<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Huge number of content<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Rich REST API<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Client controls and development kit<br />
-                                <input class="form-control" asp-for="Features" type="checkbox" name="Features"> Webhooks<br />
+                                <input class="form-control" type="checkbox" name="Features" value="contenttypes">Custom content types with metadata<br />
+                                <input class="form-control" type="checkbox" name="Features" value="permissions">Flexible permission system<br />
+                                <input class="form-control" type="checkbox" name="Features" value="usergroups">User and group management<br />
+                                <input class="form-control" type="checkbox" name="Features" value="queries">Advanced queries<br />
+                                <input class="form-control" type="checkbox" name="Features" value="hugenumber">Huge number of content or users<br />
+                                <input class="form-control" type="checkbox" name="Features" value="docpreview">Document preview images<br />
+                                <input class="form-control" type="checkbox" name="Features" value="contenttree">Organizing contents in a tree<br />
+                                <input class="form-control" type="checkbox" name="Features" value="restapi">Advanced REST API<br />
+                                <input class="form-control" type="checkbox" name="Features" value="clientsdk">Client controls and development kit<br />
+                                <input class="form-control" type="checkbox" name="Features" value="webhooks">Webhooks<br />
                             </div>
                             
                             
