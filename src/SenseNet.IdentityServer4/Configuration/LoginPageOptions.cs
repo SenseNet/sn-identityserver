@@ -13,5 +13,6 @@
         public string RegistrationWelcomeText { get; set; }
         public bool ForceAgreeTerms { get; set; }
         public bool AddCaptcha { get; set; }
+        public bool RegistrationSurvey { get; set; }
     }
 }

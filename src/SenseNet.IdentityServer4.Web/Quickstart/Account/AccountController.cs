@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SenseNet.IdentityServer4;
@@ -442,6 +444,27 @@ namespace IdentityServer4.Quickstart.UI
 
                     await SendRegistrationNotification(model);
 
+                    if (_loginOptions.RegistrationSurvey)
+                    {
+                        var userToken = Guid.NewGuid().ToString();
+
+                        UserCache.Set(userToken, new RepositoryUser
+                        {
+                            UserId = user.Id,
+                            ReturnUrl = model.ReturnUrl
+                        }, new MemoryCacheEntryOptions
+                        {
+                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                            Size = 1
+                        });
+
+                        // redirect to a survey page
+                        return View("RegistrationSurvey", new RegistrationSurveyViewModel
+                        {
+                            UserId = userToken
+                        });
+                    }
+
                     // redirect to a dedicated thanks page, without sign in
                     return View("ConfirmEmailSent", model);
                 }
@@ -458,6 +481,53 @@ namespace IdentityServer4.Quickstart.UI
             }
             
             return View(model);
+        }
+
+        private static readonly MemoryCache UserCache = new MemoryCache(new MemoryDistributedCacheOptions());
+        
+        [HttpPost]
+        public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
+        {
+            const string surveyListPath = "/Root/Content/RegistrationSurvey";
+
+            // load the user data from cache
+            if (!UserCache.TryGetValue(model.UserId, out RepositoryUser user))
+                return View("ConfirmEmailSent", new RegistrationViewModel());
+
+            var connector = await _clientConnectorFactory.CreateAsync(user.ReturnUrl)
+                .ConfigureAwait(false);
+
+            // check if the container exists before saving the result
+            if (!await SenseNet.Client.Content.ExistsAsync(surveyListPath, connector.Server).ConfigureAwait(false))
+            {
+                _logger.LogWarning($"Survey result could not be saved. Parent {surveyListPath} is missing from {connector.Server.Url}");
+                return View("ConfirmEmailSent", new RegistrationViewModel());
+            }
+
+            try
+            {
+                dynamic userContent = await SenseNet.Client.Content.LoadAsync(user.UserId, connector.Server)
+                        .ConfigureAwait(false);
+
+                // save a survey item in the repository for later use
+                await connector.CreateContentAsync(surveyListPath, "RegistrationSurveyItem", null,
+                    new Dictionary<string, object>
+                    {
+                    { "RegisteredUserEmail", (string)userContent.Email },
+                    { "RegisteredUser", (int)userContent.Id },
+                    { "SurveyResultRole", model.Role },
+                    { "SurveyResultProjectType", model.ProjectType },
+                    { "SurveyResultExperience", model.Experience },
+                    { "SurveyResultAppDevelopmentMode", model.AppDevelopmentMode },
+                    { "SurveyResultFeatures", string.Join(',', model.Features) }
+                    }).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error during survey result saving: {ex.Message}. User: {user.UserId}, repository: {connector.Server.Url}");
+            }
+
+            return View("ConfirmEmailSent", new RegistrationViewModel());
         }
 
         private async Task SendRegistrationNotification(RegistrationViewModel model, Exception exception)

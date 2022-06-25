@@ -371,5 +371,61 @@ namespace SenseNet.IdentityServer4
             return (await Content.QueryForAdminAsync($"TypeIs:User AND SyncGuid:'{token}'",
                 select: CommonUserFields, server: Server)).FirstOrDefault();
         }
+
+        public async Task UpdateContentAsync(int contentId, IDictionary<string, object> data)
+        {
+            if (data == null || !data.Any() || contentId == 0)
+                return;
+
+            try
+            {
+                Logger.LogTrace($"Saving content {contentId} in repository {Server.Url}");
+
+                var content = Content.Create(contentId, Server);
+
+                foreach (var fieldName in data.Keys)
+                {
+                    content[fieldName] = data[fieldName];
+                }
+                
+                await content.SaveAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, $"Error during saving content {contentId} in repository {Server.Url}. {ex.Message}");
+            }
+        }
+        public async Task<Content> CreateContentAsync(string parentPath, string contentType, string name, IDictionary<string, object> data)
+        {
+            if (string.IsNullOrEmpty(parentPath))
+                throw new ArgumentNullException(nameof(parentPath), "Parent path cannot be empty.");
+
+            try
+            {
+                Logger.LogTrace($"Creating {contentType} content {name} under {parentPath} in repository {Server.Url}");
+
+                var content = Content.CreateNew(parentPath, contentType, name, server: Server);
+
+                if (data != null)
+                {
+                    foreach (var fieldName in data.Keys)
+                    {
+                        content[fieldName] = data[fieldName];
+                    }
+                }
+
+                await content.SaveAsync().ConfigureAwait(false);
+
+                Logger.LogTrace($"{contentType} content created with id {content.Id} in repository {Server.Url}");
+
+                return content;
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, $"Error during creating {contentType} content {name} under {parentPath} in repository {Server.Url}. {ex.Message}");
+            }
+
+            return null;
+        }
     }
 }
