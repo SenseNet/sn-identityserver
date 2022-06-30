@@ -7,6 +7,7 @@
     <Company>Sense/Net Inc.</Company>
     <UserSecretsId>c251710b-e98c-412f-b251-6ed6c01e9d4b</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	<DockerfileRunArguments>--network sensenet --name SnIdentityServer</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>

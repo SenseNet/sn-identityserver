@@ -22,6 +22,7 @@ namespace SenseNet.IdentityServer4
         protected static readonly ConcurrentDictionary<string, IS4.Client> ClientCache = new();
         protected static readonly ConcurrentDictionary<string, string> InternalClientIdsByRepository = new();
         protected static readonly ConcurrentDictionary<string, string> RepositoriesByClientId = new();
+        public static readonly ConcurrentDictionary<string, string> RealRepositoryUrls = new();
         public static readonly ConcurrentBag<string> AllowedRepositories = new();
         
         protected readonly IConfiguration Config;
@@ -97,33 +98,47 @@ namespace SenseNet.IdentityServer4
             return client;
         }
 
-        protected void RegisterClient(string clientId, string[] repoHosts, bool internalClient)
+        protected void RegisterClient(string clientId, Repository[] repoHosts, bool internalClient)
         {
-            if (repoHosts == null)
+            if (repoHosts == null || !repoHosts.Any())
             {
                 Logger.LogWarning($"No repository host is defined for clientid {clientId}");
                 return;
             }
 
             Logger.LogTrace($"Registering client {clientId}. Internal: {internalClient}. " +
-                             $"Repositories: {string.Join(", ", repoHosts)}");
+                             $"Repositories: {string.Join(", ", repoHosts.Select(rh => rh.ToString()))}");
 
             if (internalClient)
             {
-                foreach (var host in repoHosts.Select(h => h.TrimSchema()))
+                foreach (var repository in repoHosts)
                 {
-                    InternalClientIdsByRepository[host] = clientId;
+                    InternalClientIdsByRepository[repository.PublicHost.TrimSchema()] = clientId;
                 }
             }
             
-            foreach (var host in repoHosts.Select(h => h.TrimSchema()))
+            foreach (var repository in repoHosts)
             {
-                RepositoriesByClientId.TryAdd(clientId ?? string.Empty, host);
+                var publicHost = repository.PublicHost.TrimSchema();
+                var internalHost = repository.InternalHost.TrimSchema();
+
+                RepositoriesByClientId.TryAdd(clientId ?? string.Empty, publicHost);
+
+                // Collect public-internal url pairs so that we can use the appropriate
+                // url internally when connecting to the repository. This is necessary
+                // in a containerized environment, where public and internal host names
+                // may be different.
+                // Note that the key is the host (no schema!) but the value must contain
+                // the originally configured value.
+                RealRepositoryUrls.TryAdd(publicHost, string.IsNullOrEmpty(repository.InternalHost) 
+                    ? repository.PublicHost : repository.InternalHost);
 
                 // Cache the repo url itself for validating repositories that want to 
                 // authenticate through this identity server.
-                if (!AllowedRepositories.Contains(host))
-                    AllowedRepositories.Add(host);
+                if (!AllowedRepositories.Contains(publicHost))
+                    AllowedRepositories.Add(publicHost);
+                if (!AllowedRepositories.Contains(internalHost))
+                    AllowedRepositories.Add(internalHost);
             }
         }
 
@@ -138,6 +153,23 @@ namespace SenseNet.IdentityServer4
             return InternalClientIdsByRepository.TryGetValue(repository?.TrimSchema() ?? string.Empty, out var clientId)
                 ? clientId
                 : "client";
+        }
+
+        /// <summary>
+        /// Gets the real url based on the repository url. This is required on case of a containerized environment
+        /// when we have to translate the public repository url to an internal container-specific url.
+        /// </summary>
+        /// <param name="repoUrl">Repository url</param>
+        /// <returns>The related internal url or itself in case it is not found.</returns>
+        public static string GetRealUrl(string repoUrl)
+        {
+            if (string.IsNullOrEmpty(repoUrl))
+                return repoUrl;
+
+            return RealRepositoryUrls.TryGetValue(repoUrl.TrimSchema().TrimEnd('/', ' '),
+                out var realUrl)
+                ? realUrl.AppendSchema().TrimEnd('/', ' ')
+                : repoUrl.AppendSchema().TrimEnd('/', ' ');
         }
 
         public static bool IsAllowedRepository(string repository)

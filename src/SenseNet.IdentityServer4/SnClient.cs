@@ -9,7 +9,18 @@ namespace SenseNet.IdentityServer4
         public string UserName { get; set; }
         public string[] AllowedGroups { get; set; }
         public bool InternalClient { get; set; }
-        public string[] RepositoryHosts { get; set; }
+        public Repository[] RepositoryHosts { get; set; }
+    }
+
+    public class Repository
+    {
+        public string PublicHost { get; set; }
+        public string InternalHost { get; set; }
+
+        public override string ToString()
+        {
+            return !string.IsNullOrEmpty(InternalHost) ? $"{PublicHost} ({InternalHost})" : PublicHost;
+        }
     }
 
     /// <summary>

@@ -698,7 +698,6 @@ namespace IdentityServer4.Quickstart.UI
                     return View(model);
                 }
 
-                var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
                 var connector = await _clientConnectorFactory.CreateAsync(model.ReturnUrl)
                     .ConfigureAwait(false);
 
