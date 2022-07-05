@@ -484,7 +484,31 @@ namespace IdentityServer4.Quickstart.UI
         }
 
         private static readonly MemoryCache UserCache = new MemoryCache(new MemoryDistributedCacheOptions());
-        
+
+        [HttpGet]
+        public async Task<IActionResult> RegistrationSurvey()
+        {
+            //UNDONE: disable or delete GET action: this page should be displayed only
+            // at the end of registration.
+
+            var userToken = Guid.NewGuid().ToString();
+
+            UserCache.Set(userToken, new RepositoryUser
+            {
+                UserId = 123,
+                ReturnUrl = "https://localhost:44362"
+            }, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                Size = 1
+            });
+
+            return View(new RegistrationSurveyViewModel
+            {
+                UserId = userToken
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
         {
