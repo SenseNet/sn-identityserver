@@ -1,0 +1,34 @@
+﻿.box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 12rem;
+  height: 12rem;
+  background-color: white;
+  border: 0.125rem solid #bec8dc;
+  margin-right: 1rem;
+
+  p {
+    color: #2f5496;
+    font-size: 1.25rem;
+    text-align: center;
+    height: 2rem;
+  }
+
+  &:hover {
+    background-color: #8faadc;
+    cursor: pointer;
+    border: 0.125rem solid #5677b9;
+  }
+
+  &--active {
+    background-color: #8faadc;
+    cursor: pointer;
+    border: 0.125rem solid #5677b9;
+
+    p {
+      color: #1a3c78;
+    }
+  }
+}

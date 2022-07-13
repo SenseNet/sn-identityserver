@@ -73,4 +73,8 @@ $border-radius: 6px;
             height: 13px;
         }
     }
+
+    &--column {
+        flex-direction: column;
+    }
 }

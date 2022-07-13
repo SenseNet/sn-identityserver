@@ -1,115 +1,115 @@
-@use './variables';
-@use './utils/breakpoints';
+@use "./variables";
+@use "./utils/breakpoints";
 
 html,
 body {
-    width: 100%;
-    height: 100%;
-    font-family: variables.$font-family-base;
+  width: 100%;
+  height: 100%;
+  font-family: variables.$font-family-base;
 }
 
 a {
-    text-decoration: none;
-    color: variables.$primary;
+  text-decoration: none;
+  color: variables.$primary;
 }
 
 .container {
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(179.1deg, #ddfff6 0.77%, #61b1c3 99.25%);
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(179.1deg, #ddfff6 0.77%, #61b1c3 99.25%);
 }
 
 .primary {
-    color: #13a5ad;
+  color: #13a5ad;
 }
 
 .row {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .column {
-    display: flex;
-    flex-basis: 50%;
-    flex-grow: 1;
-    justify-content: center;
-    max-width: 100%;
+  display: flex;
+  flex-basis: 50%;
+  flex-grow: 1;
+  justify-content: center;
+  max-width: 100%;
 
-    &-white {
-        background-color: variables.$white;
-    }
+  &-white {
+    background-color: variables.$white;
+  }
 }
 
 .btn {
-    cursor: pointer;
-    text-align: center;
+  cursor: pointer;
+  text-align: center;
 
+  &-block {
+    display: block;
+    width: 100%;
+  }
 
-    &-block {
-        display: block;
-        width: 100%;
-    }
+  &-text {
+    color: variables.$white;
+    border: 0;
+    text-transform: uppercase;
+  }
 
-    &-text {
-        color: variables.$white;
-        border: 0;
-        text-transform: uppercase;
-    }
+  &-animation {
+    display: inline-block;
+    transition: transform 0.4s ease 0s;
+  }
 
-    &-animation {
-        display: inline-block;
-        transition: transform 0.4s ease 0s;
-    }
-
-    &:hover &-animation, &:hover.btn-animation {
-        transform: translateY(3px);
-    }
+  &:hover &-animation,
+  &:hover.btn-animation {
+    transform: translateY(3px);
+  }
 }
 
 .alert {
-    color: variables.$red;
-    padding: 10px 0;
+  color: variables.$red;
+  padding: 10px 0;
 
-    ul {
-        padding: 0;
-        display: inline;
-        list-style-type: none;
-    }
+  ul {
+    padding: 0;
+    display: inline;
+    list-style-type: none;
+  }
 }
 
 .text {
-    &-center {
-        text-align: center;
-    }
+  &-center {
+    text-align: center;
+  }
 }
 
 .hidden {
-    &-md {
-        @include breakpoints.media-breakpoint-down(md) {
-            display: none;
-        }
+  &-md {
+    @include breakpoints.media-breakpoint-down(md) {
+      display: none;
     }
-    display: none;
+  }
+  display: none;
 }
 
 .page {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    color: #5a5a5a;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  color: #5a5a5a;
 
-    @include breakpoints.media-breakpoint-down(xs) {
-        padding: 2rem 0;
-    }
+  @include breakpoints.media-breakpoint-down(xs) {
+    padding: 2rem 0;
+  }
 
-    &-content {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        max-width: 80%;
-    }
+  &-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 80%;
+  }
 }
 
 .icon {
-    width: 24px;
+  width: 24px;
 }

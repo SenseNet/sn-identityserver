@@ -1,69 +1,69 @@
-@use '../variables';
-@use '../utils/breakpoints';
+@use "../variables";
+@use "../utils/breakpoints";
 
 .registration {
-    &-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
+  &-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
 
-    &-description {
-        font-size: 1.25rem;
-        font-weight: 500;
-    }
+  &-description {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
 
-    &-benefits {
-        list-style: none;
+  &-benefits {
+    list-style: none;
 
-        li:before {
-            content: '✓';
-            margin-right: 0.5rem;
-            color: variables.$primary;
-        }
+    li:before {
+      content: "✓";
+      margin-right: 0.5rem;
+      color: variables.$primary;
     }
+  }
 }
 
-.login, .registration {
-    &-terms {
-        margin: 10px 0 0;
-        padding: 0 20px;
-        color: variables.$white;
-        text-align: center;
+.login,
+.registration {
+  &-terms {
+    margin: 10px 0 0;
+    padding: 0 20px;
+    color: variables.$white;
+    text-align: center;
+  }
+
+  &-providers {
+    padding: 12px 0;
+    display: flex;
+    justify-content: space-around;
+
+    &-item {
+      display: flex;
+      align-items: center;
+      list-style-type: none;
+      border: 1px solid variables.$black;
+      color: variables.$black;
+      border-radius: 0.5rem;
+      padding: 4px 8px;
+      transition: transform 0.4s ease 0s;
+
+      &:hover {
+        transform: translateY(3px);
+      }
+
+      span {
+        margin-left: 10px;
+      }
     }
 
-
-    &-providers {
-        padding: 12px 0;
-        display: flex;
-        justify-content: space-around;
-
-        &-item {
-            display: flex;
-            align-items: center;
-            list-style-type: none;
-            border: 1px solid variables.$black;
-            color: variables.$black;
-            border-radius: 0.5rem;
-            padding: 4px 8px;
-            transition: transform 0.4s ease 0s;
-
-            &:hover {
-                transform: translateY(3px);
-            }
-
-            span {
-                margin-left: 10px;
-            }
-        }
-
-        &-text {
-            text-align: center;
-            font-size: 0.75rem;
-            margin: 0.5rem 0 0;
-        }
+    &-text {
+      text-align: center;
+      font-size: 0.75rem;
+      margin: 0.5rem 0 0;
     }
+  }
 }
 
 .demo-repo-text {
-    padding: 1rem;
+  padding: 1rem;
 }

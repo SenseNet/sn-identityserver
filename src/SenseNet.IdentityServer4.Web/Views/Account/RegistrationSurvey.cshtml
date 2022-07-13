@@ -17,38 +17,142 @@
                     <h1 class="card-title">Please tell us how do you plan to use sensenet!</h1>
 
                     <form asp-route="RegistrationSurvey" id="SurveyForm">
+                        <h4>Which role is closest to you?</h4>
+
                         <input type="hidden" asp-for="UserId" />
 
+                        <div class="roles">
+                             <div class="box roles-box">
+                                 <span class="material-icons">edit</span>
+                                    <p>Site builder / Content editor</p>
+                              </div>
+
+                              <div class="box roles-box">
+                                    <span class="material-icons">hardware</span>
+                                    <p>Developer</p>
+                              </div>
+
+                              <div class="box roles-box">
+                                   <span class="material-icons">verified_user</span>
+                                    <p>SysAdmin / Operator</p>
+                              </div>
+
+                               <div class="box roles-box">
+                                    <span class="material-icons">person</span>
+                                    <p>Manager</p>
+                              </div>
+                        </div>
+
+                        <h4>What type of project do you need sensenet for?</h4>
+                        <div class="project-types">
+                             <div class="box project-type-box">
+                                   <span class="material-icons">accessibility_new</span>
+                                    <p>Personal</p>
+                              </div>
+
+                              <div class="box project-type-box">
+                                     <span class="material-icons">business</span>
+                                    <p>Small business</p>
+                              </div>
+
+                              <div class="box project-type-box">
+                                    <span class="material-icons">diversity_3</span>
+                                    <p>Enterprise</p>
+                              </div>
+
+                              <div class="box project-type-box">
+                                   <span class="material-icons">question_mark</span>
+                                    <p>No project yet</p>
+                              </div>
+                        </div>
+
+                        <div class="experience">
+                             <div class="input-group input-group--column">
+                                <label for="Experience"><h4>How much experience do you have with other Content Services Platforms?</h4></label>
+                                <input class="form-control range-width" name="Experience" asp-for="Experience" type="range" min="1" max="10">
+                            </div>
+                        </div>
+
+                        <h4>How would you prefer to create your new app?</h4>
+                         <div class="app-development-mode">
+                             <div class="box app-development-mode-box">
+                                <span class="material-icons">construction</span>
+                                <p>In-House development</p>
+                            </div>
+                            <div class="box app-development-mode-box">
+                                <span class="material-icons">group_add</span>
+                                <p>Use out team</p>
+                            </div>
+                        </div>
+
                         <fieldset class="form-fieldset">
-                            <div class="input-group">
-                                <input class="form-control" autofocus asp-for="Role">
-                            </div>
-                            <div class="input-group">
-                                <input class="form-control" asp-for="ProjectType">
-                            </div>
-                            <div class="input-group">
-                                <input class="form-control" asp-for="Experience" type="range" min="1" max="10">
-                            </div>
-                            <div class="input-group">
-                                <input class="form-control" asp-for="AppDevelopmentMode">
-                            </div>
-                            <div class="input-group">
-                                Which features do you need the most? Please choose max 3 of the following options.
-                                <input class="form-control" type="checkbox" name="Features" value="contenttypes">Custom content types with metadata<br />
-                                <input class="form-control" type="checkbox" name="Features" value="permissions">Flexible permission system<br />
-                                <input class="form-control" type="checkbox" name="Features" value="usergroups">User and group management<br />
-                                <input class="form-control" type="checkbox" name="Features" value="queries">Advanced queries<br />
-                                <input class="form-control" type="checkbox" name="Features" value="hugenumber">Huge number of content or users<br />
-                                <input class="form-control" type="checkbox" name="Features" value="docpreview">Document preview images<br />
-                                <input class="form-control" type="checkbox" name="Features" value="contenttree">Organizing contents in a tree<br />
-                                <input class="form-control" type="checkbox" name="Features" value="restapi">Advanced REST API<br />
-                                <input class="form-control" type="checkbox" name="Features" value="clientsdk">Client controls and development kit<br />
-                                <input class="form-control" type="checkbox" name="Features" value="webhooks">Webhooks<br />
-                            </div>
                             
-                            
+                            <input class="form-control"  id="Role" autofocus asp-for="Role" type="hidden">
+                            <input class="form-control" id="ProjectType" asp-for="ProjectType" type="hidden">
+                            <input class="form-control" id="AppDevelopmentMode" asp-for="AppDevelopmentMode" type="hidden">
+
+                            <div id="feature-group" class="input-group input-group--column">
+                              <h4>Which features do you need the most? Please choose max 3 of the following options.</h4>
+                                <div class="tons-of-checkbox">
+
+                                    <div class="feature-line">
+                                        <label>Custom content types with metadata</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="contenttypes" onclick="return validateCheckbox()">
+                                    </div>
+
+                                     <div class="feature-line">
+                                        <label>Flexible permission system</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="permissions" onclick="return validateCheckbox()">
+                                     </div>
+
+                                      <div class="feature-line">
+                                        <label>User and group management</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="usergroups" onclick="return validateCheckbox()">
+                                     </div>
+
+
+                                      <div class="feature-line">
+                                        <label>Advanced queries</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="queries" onclick="return validateCheckbox()">
+                                     </div>
+
+                                      <div class="feature-line">
+                                        <label>Huge number of content or users</label>
+                                       <input class="form-control" type="checkbox" name="Features" value="hugenumber" onclick="return validateCheckbox()">
+                                     </div>
+
+                                     <div class="feature-line">
+                                        <label>Document preview images</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="docpreview" onclick="return validateCheckbox()">
+                                     </div>
+                               
+                                     <div class="feature-line">
+                                        <label>Organizing contents in a tree</label>
+                                         <input class="form-control" type="checkbox" name="Features" value="contenttree" onclick="return validateCheckbox()">
+                                     </div>
+                                
+                                     <div class="feature-line">
+                                        <label>Advanced REST API</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="restapi" onclick="return validateCheckbox()">
+                                     </div>
+
+                                     <div class="feature-line">
+                                        <label>Client controls and development kit</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="clientsdk" onclick="return validateCheckbox()">
+                                     </div>
+                                
+                                     <div class="feature-line">
+                                        <label>Webhooks</label>
+                                        <input class="form-control" type="checkbox" name="Features" value="webhooks" onclick="return validateCheckbox()">
+                                     </div>
+
+                                </div>
+
+                                <div id="error"></div>
+                            </div>
+
                         </fieldset>
-                        
+
                         <button class="btn btn-primary btn-block card-button" name="button" value="submit">
                             <span class="btn-animation">Submit</span>
                         </button>
@@ -58,3 +162,63 @@
         </div>
     </div>
 </div>
+
+@section scripts
+{
+        <script type="text/javascript">
+           
+            function setEventListener(className) {
+                let listenerList = document.getElementsByClassName(className)
+                let hiddenInputId, selectedItem;
+
+                for (let item of listenerList) {
+                    item.addEventListener('click', event => {
+                        for (let item of listenerList) {
+                            item.classList.remove("box--active")
+                        }
+
+                        if(className === "roles-box"){
+                            hiddenInputId = "Role"
+                        }
+
+                        if(className === "project-type-box"){
+                            hiddenInputId = "ProjectType"
+                        }
+
+                        if(className === "app-development-mode-box"){
+                            hiddenInputId = "AppDevelopmentMode"
+                        }
+
+                        item.classList.add("box--active")
+                        selectedItem = item.children[1].innerText
+                        document.getElementById(hiddenInputId).value = selectedItem;
+                    })
+                }
+            }
+
+            setEventListener("roles-box");
+            setEventListener("project-type-box");
+            setEventListener("app-development-mode-box");
+
+            function validateCheckbox(){
+                 var featureCheckboxGroup = document.getElementsByName('Features');
+                 let maxChoose = 4;
+                 let checkedCount = 0;
+                 
+                 for(let count = 0; count < featureCheckboxGroup.length; count++){
+                    if(featureCheckboxGroup[count].checked ==true){
+                        checkedCount += 1;
+                    }
+                 }
+
+                 if(checkedCount >= maxChoose){
+                    document.getElementById("error").innerHTML = `<span>You can choose max 3 of the following options.</span>`
+                    return false;
+                 }
+                 else{
+                    document.getElementById("error").innerHTML = ``;
+                 }
+            }
+        </script>
+   
+}
