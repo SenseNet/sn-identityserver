@@ -1,3 +1,5 @@
 .experience {
-  @extend .roles !optional;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4rem;
 }
