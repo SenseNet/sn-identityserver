@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>0.0.5.1</Version>
+    <Version>0.0.5.2</Version>
     <Company>Sense/Net Inc.</Company>
     <UserSecretsId>c251710b-e98c-412f-b251-6ed6c01e9d4b</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
