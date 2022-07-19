@@ -17,7 +17,7 @@
                     <h1 class="card-title">Please tell us how do you plan to use sensenet!</h1>
 
                     <form asp-route="RegistrationSurvey" id="SurveyForm">
-                        <h4>Which role is closest to you?</h4>
+                        <h4>Which role suits you best?</h4>
 
                         <input type="hidden" asp-for="UserId" />
 
@@ -68,7 +68,7 @@
 
                         <div class="experience">
                              <div class="input-group input-group--column">
-                                <label for="Experience"><h4>How much experience do you have with other Content Services Platforms?</h4></label>
+                                <label for="Experience"><h4>How much experience do you have with Content Services Platforms?</h4></label>
                                 <input class="form-control range-width" name="Experience" asp-for="Experience" type="range" min="1" max="10">
                             </div>
                         </div>
@@ -77,22 +77,22 @@
                          <div class="app-development-mode">
                              <div class="box app-development-mode-box">
                                 <span class="material-icons">construction</span>
-                                <p>In-House development</p>
+                                <p>In-house development</p>
                             </div>
                             <div class="box app-development-mode-box">
                                 <span class="material-icons">group_add</span>
-                                <p>Use out team</p>
+                                <p>Use our team</p>
                             </div>
                         </div>
 
                         <fieldset class="form-fieldset">
                             
-                            <input class="form-control"  id="Role" autofocus asp-for="Role" type="hidden">
+                            <input class="form-control" id="Role" autofocus asp-for="Role" type="hidden">
                             <input class="form-control" id="ProjectType" asp-for="ProjectType" type="hidden">
                             <input class="form-control" id="AppDevelopmentMode" asp-for="AppDevelopmentMode" type="hidden">
 
                             <div id="feature-group" class="input-group input-group--column">
-                              <h4>Which features do you need the most? Please choose max 3 of the following options.</h4>
+                              <h4>Which features do you need the most? Please choose maximum 3 of the following options.</h4>
                                 <div class="tons-of-checkbox">
 
                                     <div class="feature-line">
@@ -206,13 +206,13 @@
                  let checkedCount = 0;
                  
                  for(let count = 0; count < featureCheckboxGroup.length; count++){
-                    if(featureCheckboxGroup[count].checked ==true){
+                    if(featureCheckboxGroup[count].checked == true){
                         checkedCount += 1;
                     }
                  }
 
                  if(checkedCount >= maxChoose){
-                    document.getElementById("error").innerHTML = `<span>You can choose max 3 of the following options.</span>`
+                    document.getElementById("error").innerHTML = `<span>Please choose maximum 3.</span>`
                     return false;
                  }
                  else{
