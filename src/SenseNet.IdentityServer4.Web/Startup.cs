@@ -48,11 +48,7 @@ namespace SenseNet.IdentityServer4.Web
 
             var builder = services.AddIdentityServer(options =>
                 {
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-                    options.IssuerUri = "http://SnIdentityServer";
+                    Configuration.Bind("IdentityServer", options);
                 })
                 .AddSnIdentityServerServices();
 

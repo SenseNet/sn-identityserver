@@ -26,6 +26,7 @@
     "Docker": {
       "commandName": "Docker",
       "environmentVariables": {
+        "IdentityServer__IssuerUri": "https://localhost:44311",
         "sensenet__Clients__adminui__RepositoryHosts__0__InternalHost": "http://SnWebApplication",
         "sensenet__Clients__spa__RepositoryHosts__0__InternalHost": "http://SnWebApplication"
       },
