@@ -484,10 +484,38 @@ namespace IdentityServer4.Quickstart.UI
         }
 
         private static readonly MemoryCache UserCache = new MemoryCache(new MemoryDistributedCacheOptions());
-        
+
+        // This is a test action. This page should be displayed only
+        // at the end of registration.
+        //[HttpGet]
+        //public IActionResult RegistrationSurvey()
+        //{
+        //    var userToken = Guid.NewGuid().ToString();
+
+        //    UserCache.Set(userToken, new RepositoryUser
+        //    {
+        //        UserId = 123,
+        //        ReturnUrl = "https://localhost:44362"
+        //    }, new MemoryCacheEntryOptions
+        //    {
+        //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+        //        Size = 1
+        //    });
+
+        //    return View(new RegistrationSurveyViewModel
+        //    {
+        //        UserId = userToken
+        //    });
+        //}
+
         [HttpPost]
         public async Task<IActionResult> RegistrationSurvey(RegistrationSurveyViewModel model, string button)
         {
+            // The prerequisite of the registration survey feature is that
+            // this container should exist in the repository, so that
+            // survey results can be saved.
+            // Also a content type named 'RegistrationSurveyItem' should
+            // exist too (see expected fields below).
             const string surveyListPath = "/Root/Content/RegistrationSurvey";
 
             // load the user data from cache
@@ -496,16 +524,16 @@ namespace IdentityServer4.Quickstart.UI
 
             var connector = await _clientConnectorFactory.CreateAsync(user.ReturnUrl)
                 .ConfigureAwait(false);
-
-            // check if the container exists before saving the result
-            if (!await SenseNet.Client.Content.ExistsAsync(surveyListPath, connector.Server).ConfigureAwait(false))
-            {
-                _logger.LogWarning($"Survey result could not be saved. Parent {surveyListPath} is missing from {connector.Server.Url}");
-                return View("ConfirmEmailSent", new RegistrationViewModel());
-            }
-
+            
             try
             {
+                // check if the container exists before saving the result
+                if (!await SenseNet.Client.Content.ExistsAsync(surveyListPath, connector.Server).ConfigureAwait(false))
+                {
+                    _logger.LogWarning($"Survey result could not be saved. Parent {surveyListPath} is missing from {connector.Server.Url}");
+                    return View("ConfirmEmailSent", new RegistrationViewModel());
+                }
+
                 dynamic userContent = await SenseNet.Client.Content.LoadAsync(user.UserId, connector.Server)
                         .ConfigureAwait(false);
 

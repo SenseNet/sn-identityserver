@@ -18,6 +18,7 @@
     <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="3.0.0" />
     <PackageReference Include="Google.Cloud.RecaptchaEnterprise.V1" Version="1.6.0" />
     <PackageReference Include="IdentityServer4" Version="3.0.1" />
+    <PackageReference Include="MaterialIcons" Version="1.0.3" />
     
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.0.0" />
     

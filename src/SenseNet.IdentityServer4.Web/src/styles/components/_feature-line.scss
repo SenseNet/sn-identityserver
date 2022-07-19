@@ -1,0 +1,14 @@
+.feature-line {
+  display: flex;
+  margin-bottom: 0.5rem;
+  align-items: center;
+
+  label {
+    width: 17.563rem;
+    margin-right: 3rem;
+  }
+
+  input {
+    flex: 0 0 1.875rem;
+  }
+}
