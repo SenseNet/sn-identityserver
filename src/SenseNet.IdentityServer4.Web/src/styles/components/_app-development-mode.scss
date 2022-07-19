@@ -1,5 +1,6 @@
 .app-development-mode {
-  @extend .roles;
+  @extend .roles !optional;
+
   margin-top: 2rem;
   justify-content: flex-start;
 
