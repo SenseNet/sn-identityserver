@@ -367,14 +367,28 @@ namespace IdentityServer4.Quickstart.UI
 
                 //TODO: handle the case when the user wants to skip repo creation
 
-                if (user != null && !string.IsNullOrEmpty(model.Password))
+                if (user != null)
                 {
-                    // perform additional operations after external registration
-                    await _registrationManager.OnExternalRegistrationCompletedAsync(connector, user, model.Password, HttpContext.RequestAborted)
-                        .ConfigureAwait(false);
+                    if (!string.IsNullOrEmpty(model.Password))
+                    {
+                        // perform additional operations after external registration
+                        await _registrationManager.OnExternalRegistrationCompletedAsync(connector, user, model.Password,
+                                HttpContext.RequestAborted)
+                            .ConfigureAwait(false);
 
-                    // proceed to sign in
-                    return await Callback();
+                        // proceed to sign in
+                        return await Callback();
+                    }
+                    else
+                    {
+                        _logger.LogTrace($"Admin password NOT provided during external registration. User: {user.Email}");
+                        ModelState.AddModelError(string.Empty, "Please provide an admin password.");
+                    }
+                }
+                else
+                {
+                    _logger.LogTrace($"External user NOT found during registration. User: {model.Email}");
+                    ModelState.AddModelError(string.Empty, $"Invalid user: {model.Email}");
                 }
             }
 

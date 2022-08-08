@@ -24,6 +24,7 @@
                     </div>
                     <form asp-controller="External" asp-action="CreateRepository">
                         <div class="card-body">
+                            <input type="hidden" asp-for="Email"/>
                             <h1 class="card-title">Your sensenet repo is almost ready!</h1>
 
                             <p>
@@ -31,12 +32,16 @@
                                 You'll be able log in with username: <strong>@Model.Email</strong> and password you type below.
                                 Once your repo is up and running you will receive a confirmation email.
                             </p>
-                            <br />
+                            <br/>
+
+                            <div class="form-error">
+                                <partial name="_ValidationSummary"/>
+                            </div>
 
                             <fieldset class="form-fieldset">
                                 <div class="input-group">
-                                    <span class="input-group-prepend"><img src="/images/lock.svg" alt="password" /></span>
-                                    <input type="password" class="form-control" asp-for="Password" autocomplete="off" placeholder="admin password" />
+                                    <span class="input-group-prepend"><img src="/images/lock.svg" alt="password"/></span>
+                                    <input type="password" class="form-control" asp-for="Password" autocomplete="off" placeholder="admin password"/>
                                 </div>
 
                             </fieldset>
