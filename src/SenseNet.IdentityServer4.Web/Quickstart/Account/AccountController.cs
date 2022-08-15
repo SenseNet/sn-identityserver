@@ -538,7 +538,7 @@ namespace IdentityServer4.Quickstart.UI
                         .ConfigureAwait(false);
 
                 // save a survey item in the repository for later use
-                await connector.CreateContentAsync(surveyListPath, "RegistrationSurveyItem", null,
+                await connector.CreateContentAsync(surveyListPath, "RegistrationSurveyItem", "RegistrationSurveyItem",
                     new Dictionary<string, object>
                     {
                     { "RegisteredUserEmail", (string)userContent.Email },

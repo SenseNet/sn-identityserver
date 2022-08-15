@@ -16,7 +16,7 @@
                 <div class="card-body">
                     <h1 class="card-title">Please tell us how do you plan to use sensenet!</h1>
 
-                    <form asp-route="RegistrationSurvey" id="SurveyForm">
+                    <form asp-controller="Account" asp-action="RegistrationSurvey" id="SurveyForm">
                         <h4>Which role suits you best?</h4>
 
                         <input type="hidden" asp-for="UserId" />
