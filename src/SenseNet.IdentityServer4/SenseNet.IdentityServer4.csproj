@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.0</TargetFramework>
-		<Version>0.0.9.2</Version>
+		<Version>0.0.10</Version>
 		<Company>Sense/Net Inc.</Company>
 		<Authors>tusmester</Authors>
 		<Copyright>Copyright © Sense/Net Inc.</Copyright>
@@ -35,7 +35,7 @@
 		<PackageReference Include="IdentityServer4" Version="3.0.1" />
 		<PackageReference Include="MailChimp.Net.V3" Version="5.2.0" />
 		<PackageReference Include="MailKit" Version="3.3.0" />
-		<PackageReference Include="SenseNet.Client" Version="2.0.12" />
+		<PackageReference Include="SenseNet.Client" Version="2.0.13" />
 		<PackageReference Include="SenseNet.Tools" Version="3.2.7" />
 	</ItemGroup>
 
