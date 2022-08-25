@@ -26,13 +26,28 @@ namespace SenseNet.IdentityServer4
 
         public async Task SendAsync(string email, string name, string subject, string message)
         {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                // only log, to make the system more robust
+                _logger.LogWarning($"Trying to send an email to an empty address. Subject: {subject}");
+                return;
+            }
+
             _logger?.LogTrace($"Sending email to {email}. Subject: {subject}, Server: {_emailSettings?.Server}");
 
             try
             {
                 var mimeMessage = new MimeMessage();
                 mimeMessage.From.Add(new MailboxAddress(_emailSettings.SenderName, _emailSettings.FromAddress));
-                mimeMessage.To.Add(new MailboxAddress(name, email));
+
+                //TODO: provide an overload of this method where multiple email addresses
+                // and corresponding names can be provided. Currently we use the same name
+                // for all recipients.
+                foreach (var emailAddress in email.Split(new[] { ';', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    mimeMessage.To.Add(new MailboxAddress(name, emailAddress));
+                }
+
                 mimeMessage.Subject = subject;
                 mimeMessage.Body = new TextPart("html")
                 {
