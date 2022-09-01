@@ -45,6 +45,36 @@ namespace SenseNet.IdentityServer4
             return snRepoUrl;
         }
 
+        public static string GetApplicationUrl(string returnUrl)
+        {
+            var applicationUrl = string.Empty;
+
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                // parse return url just to extract the app url
+                if (returnUrl.StartsWith("/"))
+                    returnUrl = "http://example.com" + returnUrl;
+
+                try
+                {
+                    var parsedReturnUri = new Uri(returnUrl);
+                    var query = QueryHelpers.ParseQuery(parsedReturnUri.Query);
+                    
+                    if (query.TryGetValue("redirect_uri", out var redirectUri))
+                    {
+                        var parsedRedirectUri = new Uri(redirectUri);
+                        applicationUrl = parsedRedirectUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+                    }
+                }
+                catch
+                {
+                    // unknown return url format
+                }
+            }
+
+            return applicationUrl;
+        }
+
         public static string TrimSchema(this string url)
         {
             if (url == null)

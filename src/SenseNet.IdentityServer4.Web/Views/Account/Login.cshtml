@@ -1,4 +1,5 @@
 @using Microsoft.Extensions.Options
+@using SenseNet.Client
 @using SenseNet.IdentityServer4.Configuration
 @model LoginViewModel
 @inject IOptions<LoginPageOptions> LoginOptions;
@@ -18,6 +19,23 @@
                         </a>
                     </figure>
                 </div>
+                
+                @if (loginConfig.DisplayClientApplication)
+                {
+                    <div class="card-appinfo">
+                        @Model.SnApplicationUrl.TrimSchema()
+                    </div>
+                }
+                @if (loginConfig.DisplayRepositoryUrl)
+                {
+                    @if (!loginConfig.DisplayClientApplication)
+                    {
+                        <div class="card-appinfo"></div>
+                    }
+                    <div class="card-repoinfo">
+                        @Model.SnRepositoryUrl.TrimSchema()
+                    </div>
+                }
 
                 @if (loginConfig.DisplayRegistration)
                 {

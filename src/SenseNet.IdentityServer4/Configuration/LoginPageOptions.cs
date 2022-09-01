@@ -6,6 +6,7 @@
         public bool DisplayOtherRepositoryButton { get; set; }
         public bool DisplayRegistration { get; set; }
         public bool DisplayRegistrationExplanation { get; set; }
+        public bool DisplayClientApplication { get; set; }
         public bool DisplayRepositoryUrl { get; set; }
         public bool DisplaySocialLoginSection { get; set; }
         public bool AddAcceptPrivacyScript { get; set; }

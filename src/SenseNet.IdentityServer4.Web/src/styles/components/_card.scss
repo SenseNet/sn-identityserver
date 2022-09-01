@@ -4,55 +4,69 @@
 $border-radius: 0.5rem;
 
 .card {
-  display: flex;
-  flex-direction: column;
-  align-self: center;
-  min-width: 380px;
-  max-width: 1024px;
-  background-color: variables.$white;
-  border-radius: $border-radius;
-  box-shadow: 0px 9px 46px 8px rgba(107, 103, 103, 0.12);
-
-  @include breakpoints.media-breakpoint-down(xs) {
-    min-width: 300px;
-  }
-
-  &-header {
-    background: linear-gradient(180deg, #fbfbfb 0%, #dddddd 336.31%, #353a4e 336.31%);
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    min-width: 380px;
+    max-width: 1024px;
+    background-color: variables.$white;
     border-radius: $border-radius;
-    font-weight: 600;
-    font-size: 1.25rem;
-    text-align: center;
+    box-shadow: 0px 9px 46px 8px rgba(107, 103, 103, 0.12);
 
-    .logo-wrapper {
-      margin: 0.5rem;
-
-      .logo {
-        height: 60px;
-
-        &-caption {
-          color: #5a5a5a;
-        }
-      }
+    @include breakpoints.media-breakpoint-down(xs) {
+        min-width: 300px;
     }
-  }
 
-  &-body {
-    padding: 1rem;
-  }
+    &-header {
+        background: linear-gradient(180deg, #fbfbfb 0%, #dddddd 336.31%, #353a4e 336.31%);
+        border-radius: $border-radius;
+        font-weight: 600;
+        font-size: 1.25rem;
+        text-align: center;
 
-  &-title {
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 1rem;
-  }
+        .logo-wrapper {
+            margin: 0.5rem;
 
-  &-button {
-    padding: 1rem 0;
-    text-transform: uppercase;
-    color: variables.$white;
-    background: linear-gradient(180deg, #13a5ad 0%, #6cd7ce 176.08%);
-    border-radius: $border-radius;
-    border: 0;
-  }
+            .logo {
+                height: 60px;
+
+                &-caption {
+                    color: #5a5a5a;
+                }
+            }
+        }
+    }
+
+    &-appinfo {
+        font-weight: 600;
+        font-size: 1.3rem;
+        text-align: center;
+        padding: 1rem 0 0 0;
+    }
+
+    &-repoinfo {
+        font-weight: 400;
+        font-size: 1rem;
+        text-align: center;
+        padding: 0 0 0.8rem 0;
+    }
+
+    &-body {
+        padding: 1rem;
+    }
+
+    &-title {
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 1rem;
+    }
+
+    &-button {
+        padding: 1rem 0;
+        text-transform: uppercase;
+        color: variables.$white;
+        background: linear-gradient(180deg, #13a5ad 0%, #6cd7ce 176.08%);
+        border-radius: $border-radius;
+        border: 0;
+    }
 }
