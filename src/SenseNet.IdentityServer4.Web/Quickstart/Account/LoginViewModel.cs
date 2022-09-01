@@ -11,6 +11,7 @@ namespace IdentityServer4.Quickstart.UI
         public bool EnableLocalLogin { get; set; } = true;
 
         public string SnRepositoryUrl => IdentityTools.GetRepositoryUrl(ReturnUrl);
+        public string SnApplicationUrl => IdentityTools.GetApplicationUrl(ReturnUrl);
 
         public IEnumerable<ExternalProvider> ExternalProviders { get; set; } = Enumerable.Empty<ExternalProvider>();
         public IEnumerable<ExternalProvider> VisibleExternalProviders => ExternalProviders.Where(x => !String.IsNullOrWhiteSpace(x.DisplayName));
