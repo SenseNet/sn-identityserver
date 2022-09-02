@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.0</TargetFramework>
-		<Version>0.0.10.1</Version>
+		<Version>0.0.10.2</Version>
 		<Company>Sense/Net Inc.</Company>
 		<Authors>tusmester</Authors>
 		<Copyright>Copyright © Sense/Net Inc.</Copyright>
