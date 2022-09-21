@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SenseNet.Client;
 using SenseNet.Tools;
 
@@ -62,6 +63,41 @@ namespace SenseNet.IdentityServer4
             }
 
             return null;
+        }
+
+        public async Task<ClientInfo[]> GetClientsAsync()
+        {
+            var request = new ODataRequest(Server)
+            {
+                ActionName = "GetClients",
+                Path = "/Root"
+            };
+
+            var result = await Retrier.RetryAsync(3, 1000, async () =>
+            {
+                JObject response = await RESTCaller.GetResponseJsonAsync(request, Server, HttpMethod.Get).ConfigureAwait(false);
+
+                return ((JArray)response["clients"]).ToObject<ClientInfo[]>();
+
+            }, (clients, i, ex) =>
+            {
+                if (ex != null)
+                {
+                    Logger?.LogError(ex,
+                        $"Error during getting clients from repository {Server?.Url} (retry attempt {4 - i}). " +
+                        ex.Message);
+                    return false;
+                }
+
+                if (clients?.Any() ?? false) 
+                    return true;
+
+                Logger?.LogWarning($"No clients were returned from {Server?.Url} (retry attempt {4 - i})");
+                return false;
+
+            });
+
+            return result ?? Array.Empty<ClientInfo>();
         }
 
         public async Task SetAgreeToTermsAsync(SnUser user, bool agree = true, string token = null, bool enable = true)
@@ -141,7 +177,8 @@ namespace SenseNet.IdentityServer4
 
             var snUser = SnUser.FromClientContent(user);
 
-            await _mailingListManager.Subscribe(snUser);
+            if (_mailingListManager != null)
+                await _mailingListManager.Subscribe(snUser);
 
             return snUser;
         }
@@ -206,7 +243,8 @@ namespace SenseNet.IdentityServer4
 
             var snUser = SnUser.FromClientContent(userContent);
 
-            await _mailingListManager.Subscribe(snUser);
+            if (_mailingListManager != null)
+                await _mailingListManager.Subscribe(snUser);
 
             return snUser;
         }
