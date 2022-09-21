@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SenseNet.Client;
 using SenseNet.Diagnostics;
 using IS4=IdentityServer4.Models;
 
@@ -24,7 +27,8 @@ namespace SenseNet.IdentityServer4
         protected static readonly ConcurrentDictionary<string, string> RepositoriesByClientId = new();
         public static readonly ConcurrentDictionary<string, string> RealRepositoryUrls = new();
         public static readonly ConcurrentBag<string> AllowedRepositories = new();
-        
+
+        protected readonly IdentityServerTools IsTools;
         protected readonly IConfiguration Config;
         protected readonly ILogger<SnClientStore> Logger;
         protected static readonly SemaphoreSlim ClientSemaphore = new(1);
@@ -34,8 +38,9 @@ namespace SenseNet.IdentityServer4
 
         //============================================================================= Constructors
 
-        public SnClientStore(IConfiguration config, ILogger<SnClientStore> logger)
+        public SnClientStore(IdentityServerTools identityServerTools, IConfiguration config, ILogger<SnClientStore> logger)
         {
+            IsTools = identityServerTools;
             Config = config;
             Logger = logger;
             _setDefaultClients = Config.GetValue<bool>("sensenet:Authentication:SetDefaultClients");
@@ -83,6 +88,12 @@ namespace SenseNet.IdentityServer4
                 }
 
                 // try again, maybe it was loaded on another thread
+                if (ClientCache.TryGetValue(clientId, out client))
+                    return client;
+                
+                await LoadClientsFromRepositories().ConfigureAwait(false);
+
+                // try again
                 if (ClientCache.TryGetValue(clientId, out client))
                     return client;
             }
@@ -221,13 +232,155 @@ namespace SenseNet.IdentityServer4
                         client.Claims = new[] { new Claim(JwtClaimTypes.Subject, client.UserName) };
                     }
                 }
-
-                ClientCache.TryAdd(clientId, client);
+                
+                ClientCache.AddOrUpdate(clientId, client, (_, _) => client);
 
                 RegisterClient(clientId, client.RepositoryHosts, client.InternalClient);
             }
 
             _defaultClientsLoaded = true;
+        }
+
+        private async Task LoadClientsFromRepositories()
+        {
+            Logger.LogTrace("Loading clients from configured repositories");
+
+            var clientConfig = Config.GetSection("sensenet:Clients");
+            if (clientConfig == null)
+                return;
+
+            var configuredRepositories = new List<string>();
+
+            // collect all repository urls from configured clients
+            foreach (var clientSection in clientConfig.GetChildren())
+            {
+                var clientId = clientSection.Key;
+                var client = new SnClient { ClientId = clientId };
+
+                // load properties from configuration
+                clientSection.Bind(client);
+
+                if (client.RepositoryHosts == null) 
+                    continue;
+
+                foreach (var repository in client.RepositoryHosts)
+                {
+                    // we have to collect the real url that we can use to connect to the repository
+                    var hostUrl = string.IsNullOrEmpty(repository.InternalHost)
+                        ? repository.PublicHost
+                        : repository.InternalHost;
+
+                    if (!configuredRepositories.Contains(hostUrl))
+                        configuredRepositories.Add(hostUrl);
+                }
+            }
+
+            // iterate through all well-known repositories and load clients from their databases
+            foreach (var repository in configuredRepositories)
+            {
+                Logger.LogTrace($"Loading clients from {repository}");
+
+                var server = new ServerContext
+                {
+                    Url = repository.AppendSchema(),
+                    IsTrusted = true,
+                    Authentication =
+                    {
+                        //TODO: check if a hardcoded client id is acceptable
+                        AccessToken = await IsTools.GetClientJwtAsync("client").ConfigureAwait(false)
+                    }
+                };
+
+                var connector = new SnClientConnector(server, null, Logger);
+                var clients = await connector.GetClientsAsync().ConfigureAwait(false);
+
+                foreach (var client in clients)
+                {
+                    // load additional properties from configuration
+                    AddClientByTemplate(client);
+
+                    RegisterClient(client.ClientId, new[]
+                        {
+                            new Repository
+                            {
+                                PublicHost = client.Repository.TrimSchema(),
+                                InternalHost = repository.TrimSchema()
+                            }
+                        },
+                        client.Type == ClientType.InternalClient);
+                }
+            }
+        }
+
+        protected SnClient AddClientByTemplate(ClientInfo clientInfo)
+        {
+            // find the appropriate template name for this client
+            var clientTemplateName = clientInfo.Type switch
+            {
+                ClientType.ExternalClient => "client",
+                ClientType.InternalClient => "client",
+                ClientType.AdminUi => "adminui",
+                ClientType.ExternalSpa => "spa",
+                ClientType.InternalSpa => "spa",
+                _ => throw new NotImplementedException($"{clientInfo.Type} client type is not handled.")
+            };
+
+            Logger.LogTrace($"Adding client {clientInfo.ClientId} with template {clientTemplateName}");
+
+            var clientConfig = Config.GetSection("sensenet:Clients:" + clientTemplateName);
+            if (clientConfig == null)
+            {
+                Logger.LogWarning($"Client template {clientTemplateName} not found");
+                return null;
+            }
+
+            var client = new SnClient { ClientId = clientInfo.ClientId };
+
+            // load properties from configuration
+            clientConfig.Bind(client);
+
+            // if this is a client that allows authenticating using a secret (usually tools)
+            if (client.AllowedGrantTypes.Contains(GrantType.ClientCredentials))
+            {
+                // remove empty secrets for security reasons: we do not want to use the default secret anymore
+                var emptySecrets = client.ClientSecrets.Where(s => string.IsNullOrEmpty(s.Value)).ToList();
+                foreach (var emptySecret in emptySecrets)
+                {
+                    client.ClientSecrets.Remove(emptySecret);
+                }
+
+                if (clientInfo.Secrets != null)
+                {
+                    // set dynamic secrets
+                    foreach (var secretInfo in clientInfo.Secrets.Where(si => si.ValidTill > DateTime.UtcNow))
+                    {
+                        var secretValue = secretInfo.Value;
+                        
+                        if (!string.IsNullOrEmpty(secretValue))
+                            client.ClientSecrets.Add(new Secret(secretValue.Sha256(), secretInfo.ValidTill));
+                    }
+                }
+                
+                // see if a user is set in the info object or in config
+                var userName = string.IsNullOrEmpty(clientInfo.UserName)
+                    ? client.UserName
+                    : clientInfo.UserName;
+
+                // set sensenet user id for client tools
+                if (client.UserId > 0)
+                {
+                    client.Claims = new[] { new Claim(JwtClaimTypes.Subject, client.UserId.ToString()) };
+                }
+
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    client.Claims = new[] { new Claim(JwtClaimTypes.Subject, userName) };
+                }
+            }
+
+            ClientCache.AddOrUpdate(client.ClientId, client, (_, _) => client);
+
+            return client;
         }
     }
 }
