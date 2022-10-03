@@ -339,6 +339,8 @@ namespace SenseNet.IdentityServer4
             // load properties from configuration
             clientConfig.Bind(client);
 
+            Logger.LogTrace($"Allowed grant types for client {clientInfo.ClientId}: {string.Join(", ", client.AllowedGrantTypes)}");
+
             // if this is a client that allows authenticating using a secret (usually tools)
             if (client.AllowedGrantTypes.Contains(GrantType.ClientCredentials))
             {
