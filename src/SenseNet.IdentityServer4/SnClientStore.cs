@@ -342,6 +342,8 @@ namespace SenseNet.IdentityServer4
             // if this is a client that allows authenticating using a secret (usually tools)
             if (client.AllowedGrantTypes.Contains(GrantType.ClientCredentials))
             {
+                Logger.LogTrace($"Loading secrets for client {clientInfo.ClientId}.");
+
                 // remove empty secrets for security reasons: we do not want to use the default secret anymore
                 var emptySecrets = client.ClientSecrets.Where(s => string.IsNullOrEmpty(s.Value)).ToList();
                 foreach (var emptySecret in emptySecrets)
@@ -355,10 +357,23 @@ namespace SenseNet.IdentityServer4
                     foreach (var secretInfo in clientInfo.Secrets.Where(si => si.ValidTill > DateTime.UtcNow))
                     {
                         var secretValue = secretInfo.Value;
-                        
+
                         if (!string.IsNullOrEmpty(secretValue))
+                        {
+                            Logger.LogTrace($"Registering secret {secretValue.Substring(0, 5)} " +
+                                            $"(valid till {secretInfo.ValidTill}) for client {clientInfo.ClientId}.");
+
                             client.ClientSecrets.Add(new Secret(secretValue.Sha256(), secretInfo.ValidTill));
+                        }
+                        else
+                        {
+                            Logger.LogTrace($"Secret {secretInfo.Id} is empty for client {clientInfo.ClientId}.");
+                        }
                     }
+                }
+                else
+                {
+                    Logger.LogTrace($"Secret list is empty for client {clientInfo.ClientId}.");
                 }
                 
                 // see if a user is set in the info object or in config
