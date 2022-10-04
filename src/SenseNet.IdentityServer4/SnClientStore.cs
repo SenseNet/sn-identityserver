@@ -78,7 +78,7 @@ namespace SenseNet.IdentityServer4
                 Logger?.LogTrace($"Client {clientId} not found in cache.");
             }
 
-            await ClientSemaphore.WaitAsync();
+            await ClientSemaphore.WaitAsync().ConfigureAwait(false);
 
             try
             {
@@ -210,17 +210,22 @@ namespace SenseNet.IdentityServer4
                 // if this is a client that allows authenticating using a secret (usually tools)
                 if (client.AllowedGrantTypes.Contains(GrantType.ClientCredentials))
                 {
-                    // set default secret if not provided in config
-                    var secret = client.ClientSecrets.FirstOrDefault();
-                    if (secret == null)
-                        client.ClientSecrets.Add(secret = new Secret());
+                    if (client.ClientSecrets.All(s => string.IsNullOrEmpty(s.Value)))
+                    {
+                        Logger.LogWarning($"No secret is configured for client {clientId}, skipping client registration.");
+                        continue;
+                    }
+                    
+                    foreach (var secret in client.ClientSecrets)
+                    {
+                        // encode configured secret value
+                        var secretValue = secret.Value;
+                        secret.Value =  secretValue.Sha256();
 
-                    // encode configured or default secret value
-                    var secretValue = secret.Value;
-                    secret.Value = string.IsNullOrEmpty(secretValue) ? "secret".Sha256() : secretValue.Sha256();
-
-                    Logger.LogTrace($"Secret loaded from config for client {clientId}: {secretValue?.Truncate(5)}... " +
-                                     $"Encoded: {secret.Value?.Truncate(5)}...");
+                        Logger.LogTrace(
+                            $"Secret loaded from config for client {clientId}: {secretValue?.Truncate(5)}... " +
+                            $"Encoded: {secret.Value?.Truncate(5)}...");
+                    }
 
                     // set sensenet user id for client tools
                     if (client.UserId > 0)

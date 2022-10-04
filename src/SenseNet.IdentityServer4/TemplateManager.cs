@@ -29,7 +29,7 @@ namespace SenseNet.IdentityServer4
                 throw new InvalidOperationException($"Template {templateFullName} not found.");
 
             using var sr = new StreamReader(resourceStream);
-            return await sr.ReadToEndAsync();
+            return await sr.ReadToEndAsync().ConfigureAwait(false);
         }
 
         protected virtual Assembly GetAssembly()

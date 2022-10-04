@@ -146,7 +146,7 @@ namespace IdentityServer4.Quickstart.UI
                 // validate username/password against the repository
                 if (SnClientStore.IsAllowedRepository(connector.Server?.Url))
                 {
-                    var user = await connector.ValidateCredentialsAsync(model.Username, model.Password);
+                    var user = await connector.ValidateCredentialsAsync(model.Username, model.Password).ConfigureAwait(false);
                     if (user != null)
                     {
                         // if the user has not agreed to terms and conditions yet, redirect to the intermediate page

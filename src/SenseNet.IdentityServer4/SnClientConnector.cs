@@ -36,7 +36,10 @@ namespace SenseNet.IdentityServer4
         {
             // check if the repository is in the white list of accepted hosts
             if (!SnClientStore.IsAllowedRepository(Server.Url))
+            {
+                Logger.LogTrace($"Repository {Server.Url} is NOT ALLOWED here, credential validation is denied for user {userName}.");
                 return null;
+            }
 
             var request = new ODataRequest(Server)
             {
@@ -46,11 +49,15 @@ namespace SenseNet.IdentityServer4
 
             try
             {
+                Logger.LogTrace($"Validating user credentials of {userName} with repository {Server.Url}");
+
                 var response = await RESTCaller.GetResponseJsonAsync(request, Server, HttpMethod.Post, new
                 {
                     userName,
                     password
                 }).ConfigureAwait(false);
+
+                Logger.LogTrace($"Loading user data of {userName} ({response.id}, {response.name}) from repository {Server.Url}");
 
                 // we have to load the full user object because the method above returns only a couple of fields
                 dynamic user = await Content.LoadAsync((int) response.id, Server).ConfigureAwait(false);
