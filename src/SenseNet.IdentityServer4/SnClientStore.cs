@@ -93,6 +93,11 @@ namespace SenseNet.IdentityServer4
                 
                 await LoadClientsFromRepositories().ConfigureAwait(false);
 
+                Logger.LogInformation($"Client cache updated. Client ids: {string.Join(", ", ClientCache.Keys)} | " +
+                                      $"Allowed repositories: {string.Join(", ", AllowedRepositories)} | " +
+                                      "Internal client ids: " +
+                                      $"{string.Join(", ", InternalClientIdsByRepository.Select(ic => $"{ic.Value} ({ic.Key})"))}");
+
                 // try again
                 if (ClientCache.TryGetValue(clientId, out client))
                     return client;

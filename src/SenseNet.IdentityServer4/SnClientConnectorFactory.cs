@@ -50,9 +50,13 @@ namespace SenseNet.IdentityServer4
                 throw new InvalidOperationException("Unknown repository");
             }
 
+            var realRepoUrl = SnClientStore.GetRealUrl(repoUrl);
+
+            Logger.LogTrace($"Creating client connector for {realRepoUrl} with clientid {clientId}");
+
             var server = new ServerContext
             {
-                Url = SnClientStore.GetRealUrl(repoUrl),
+                Url = realRepoUrl,
                 IsTrusted = WebHostEnvironment.IsDevelopment(),
                 Authentication =
                 {
