@@ -47,6 +47,10 @@ namespace SenseNet.IdentityServer4
                 Path = "/Root"
             };
 
+            //TEMPORARILY remove the auth token to send this request as a visitor
+            var originalToken = Server.Authentication.AccessToken;
+            Server.Authentication.AccessToken = null;
+
             try
             {
                 Logger.LogTrace($"Validating user credentials of {userName} with repository {Server.Url}");
@@ -57,10 +61,14 @@ namespace SenseNet.IdentityServer4
                     password
                 }).ConfigureAwait(false);
 
-                Logger.LogTrace($"Loading user data of {userName} ({response.id}, {response.name}) from repository {Server.Url}");
+                Logger.LogTrace("User validation succeeded. Loading user data of " +
+                                $"{userName} ({response.id}, {response.name}) from repository {Server.Url}");
+
+                // restore the original token, because the following request requires authentication
+                Server.Authentication.AccessToken = originalToken;
 
                 // we have to load the full user object because the method above returns only a couple of fields
-                dynamic user = await Content.LoadAsync((int) response.id, Server).ConfigureAwait(false);
+                dynamic user = await Content.LoadAsync((int)response.id, Server).ConfigureAwait(false);
 
                 return SnUser.FromClientContent(user);
             }

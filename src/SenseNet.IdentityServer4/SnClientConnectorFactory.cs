@@ -54,13 +54,35 @@ namespace SenseNet.IdentityServer4
 
             Logger.LogTrace($"Creating client connector for {realRepoUrl} with clientid {clientId}");
 
+            var authToken = await IsTools.GetClientJwtAsync(clientId).ConfigureAwait(false);
+
+            return CreateConnector(realRepoUrl, authToken);
+        }
+
+        public SnClientConnector CreateAsVisitor(string returnUrl)
+        {
+            // Assume this is a return url containing the repo url. If it is not recognizable,
+            // use it as a repository url.
+            var repoUrl = IdentityTools.GetRepositoryUrl(returnUrl);
+            if (string.IsNullOrEmpty(repoUrl))
+                repoUrl = returnUrl;
+
+            var realRepoUrl = SnClientStore.GetRealUrl(repoUrl);
+
+            Logger.LogTrace($"Creating client connector for {realRepoUrl} without authentication.");
+
+            return CreateConnector(realRepoUrl, null);
+        }
+
+        private SnClientConnector CreateConnector(string repoUrl, string accessToken)
+        {
             var server = new ServerContext
             {
-                Url = realRepoUrl,
+                Url = repoUrl,
                 IsTrusted = WebHostEnvironment.IsDevelopment(),
                 Authentication =
                 {
-                    AccessToken = await IsTools.GetClientJwtAsync(clientId).ConfigureAwait(false)
+                    AccessToken = accessToken
                 }
             };
 
