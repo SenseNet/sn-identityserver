@@ -195,18 +195,26 @@ namespace SenseNet.IdentityServer4
 
         //============================================================================= Helper methods
 
-        //UNDONE: remove default clients when the central service can provide clients
+        private static readonly string[] DefaultClientIds = new[] { "adminui", "spa", "mvc", "client" };
+
         public void SetDefaultClients()
         {
-            Logger.LogTrace("Loading configured clients.");
+            Logger.LogTrace("Loading clients from configuration.");
 
             var clientConfig = Config.GetSection("sensenet:Clients");
             if (clientConfig == null)
                 return;
 
+            var loadedCount = 0;
+
             foreach (var clientSection in clientConfig.GetChildren())
             {
                 var clientId = clientSection.Key;
+
+                // skip default clients and load only custom ones
+                if (DefaultClientIds.Contains(clientId))
+                    continue;
+
                 var client = new SnClient { ClientId = clientId };
 
                 // load properties from configuration
@@ -215,6 +223,13 @@ namespace SenseNet.IdentityServer4
                 // if this is a client that allows authenticating using a secret (usually tools)
                 if (client.AllowedGrantTypes.Contains(GrantType.ClientCredentials))
                 {
+                    // remove empty secrets for security reasons: we do not want to use the default secret anymore
+                    var emptySecrets = client.ClientSecrets.Where(s => string.IsNullOrEmpty(s.Value)).ToList();
+                    foreach (var emptySecret in emptySecrets)
+                    {
+                        client.ClientSecrets.Remove(emptySecret);
+                    }
+
                     if (client.ClientSecrets.All(s => string.IsNullOrEmpty(s.Value)))
                     {
                         Logger.LogWarning($"No secret is configured for client {clientId}, skipping client registration.");
@@ -242,18 +257,22 @@ namespace SenseNet.IdentityServer4
                         client.Claims = new[] { new Claim(JwtClaimTypes.Subject, client.UserName) };
                     }
                 }
-                
+
+                loadedCount++;
+
                 ClientCache.AddOrUpdate(clientId, client, (_, _) => client);
 
                 RegisterClient(clientId, client.RepositoryHosts, client.InternalClient);
             }
+
+            Logger?.LogTrace($"{loadedCount} clients loaded from configuration.");
 
             _defaultClientsLoaded = true;
         }
 
         private async Task LoadClientsFromRepositories()
         {
-            Logger.LogTrace("Loading clients from configured repositories");
+            Logger.LogTrace("Loading clients from repositories.");
 
             var clientConfig = Config.GetSection("sensenet:Clients");
             if (clientConfig == null)

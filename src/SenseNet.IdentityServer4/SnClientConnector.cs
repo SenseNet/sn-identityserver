@@ -66,7 +66,7 @@ namespace SenseNet.IdentityServer4
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, "Error during validate credentials request. Url: {0}", Server.Url);
+                Logger?.LogError(ex, $"Error during validate credentials request. {ex.Message} Url: {Server.Url}");
             }
 
             return null;
