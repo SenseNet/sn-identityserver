@@ -195,7 +195,7 @@ namespace SenseNet.IdentityServer4
 
         //============================================================================= Helper methods
 
-        private static readonly string[] DefaultClientIds = new[] { "adminui", "spa", "mvc", "client" };
+        private static readonly string[] SkippedClientIds = new[] { "adminui", "spa", "mvc" };
 
         public void SetDefaultClients()
         {
@@ -211,8 +211,8 @@ namespace SenseNet.IdentityServer4
             {
                 var clientId = clientSection.Key;
 
-                // skip default clients and load only custom ones
-                if (DefaultClientIds.Contains(clientId))
+                // skip clients intended for templating and load only custom ones
+                if (SkippedClientIds.Contains(clientId))
                     continue;
 
                 var client = new SnClient { ClientId = clientId };
@@ -230,12 +230,11 @@ namespace SenseNet.IdentityServer4
                         client.ClientSecrets.Remove(emptySecret);
                     }
 
-                    if (client.ClientSecrets.All(s => string.IsNullOrEmpty(s.Value)))
+                    if (!client.ClientSecrets.Any())
                     {
-                        Logger.LogWarning($"No secret is configured for client {clientId}, skipping client registration.");
-                        continue;
+                        Logger.LogWarning($"No secret is configured for client {clientId}.");
                     }
-                    
+
                     foreach (var secret in client.ClientSecrets)
                     {
                         // encode configured secret value

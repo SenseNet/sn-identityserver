@@ -57,10 +57,11 @@ namespace SenseNet.IdentityServer4
                     password
                 }).ConfigureAwait(false);
 
-                Logger.LogTrace($"Loading user data of {userName} ({response.id}, {response.name}) from repository {Server.Url}");
-
+                Logger.LogTrace("User validation succeeded. Loading user data of " +
+                                $"{userName} ({response.id}, {response.name}) from repository {Server.Url}");
+                
                 // we have to load the full user object because the method above returns only a couple of fields
-                dynamic user = await Content.LoadAsync((int) response.id, Server).ConfigureAwait(false);
+                dynamic user = await Content.LoadAsync((int)response.id, Server).ConfigureAwait(false);
 
                 return SnUser.FromClientContent(user);
             }
