@@ -230,12 +230,11 @@ namespace SenseNet.IdentityServer4
                         client.ClientSecrets.Remove(emptySecret);
                     }
 
-                    //if (client.ClientSecrets.All(s => string.IsNullOrEmpty(s.Value)))
-                    //{
-                    //    Logger.LogWarning($"No secret is configured for client {clientId}, skipping client registration.");
-                    //    continue;
-                    //}
-                    
+                    if (!client.ClientSecrets.Any())
+                    {
+                        Logger.LogWarning($"No secret is configured for client {clientId}.");
+                    }
+
                     foreach (var secret in client.ClientSecrets)
                     {
                         // encode configured secret value
