@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace SenseNet.IdentityServer4
 {
@@ -38,19 +39,28 @@ namespace SenseNet.IdentityServer4
 
     public class DefaultRegistrationManager : IRegistrationManager
     {
+        private readonly ILogger<DefaultRegistrationManager> _logger;
+
+        public DefaultRegistrationManager(ILogger<DefaultRegistrationManager> logger)
+        {
+            _logger = logger;
+        }
         public Task OnRegistrationConfirmedAsync(SnClientConnector connector, SnUser user, CancellationToken cancel)
         {
+            _logger.LogTrace("OnRegistrationConfirmedAsync called.");
             return Task.CompletedTask;
         }
 
         public Task OnExternalRegistrationCompletedAsync(SnClientConnector connector, SnUser user, string password,
             CancellationToken cancel)
         {
+            _logger.LogTrace("OnExternalRegistrationCompletedAsync called.");
             return Task.CompletedTask;
         }
 
         public bool ExternalRegistrationRedirectToPasswordForm(SnClientConnector connector)
         {
+            _logger.LogTrace("ExternalRegistrationRedirectToPasswordForm: false");
             return false;
         }
     }

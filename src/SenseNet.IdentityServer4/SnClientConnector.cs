@@ -67,7 +67,7 @@ namespace SenseNet.IdentityServer4
             }
             catch (Exception ex)
             {
-                Logger?.LogError(ex, $"Error during validate credentials request. {ex.Message} Url: {Server.Url}");
+                Logger?.LogError(ex, $"Error during validate credentials request. {ex.Message} User: {userName} Url: {Server.Url}");
             }
 
             return null;
@@ -122,6 +122,8 @@ namespace SenseNet.IdentityServer4
                 userContent["Enabled"] = enable;
 
                 await userContent.SaveAsync().ConfigureAwait(false);
+
+                Logger.LogTrace($"User {user.Email} has been enabled ({enable}) and agreed to terms ({agree}) in repository {Server.Url}");
             }
             catch (Exception ex)
             {
