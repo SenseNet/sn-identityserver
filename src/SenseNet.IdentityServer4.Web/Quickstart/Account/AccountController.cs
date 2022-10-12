@@ -547,7 +547,7 @@ namespace IdentityServer4.Quickstart.UI
                     { "SurveyResultProjectType", model.ProjectType },
                     { "SurveyResultExperience", model.Experience },
                     { "SurveyResultAppDevelopmentMode", model.AppDevelopmentMode },
-                    { "SurveyResultFeatures", string.Join(',', model.Features) }
+                    { "SurveyResultFeatures", string.Join(',', model.Features ?? Array.Empty<string>()) }
                     }).ConfigureAwait(false);
             }
             catch (Exception ex)
