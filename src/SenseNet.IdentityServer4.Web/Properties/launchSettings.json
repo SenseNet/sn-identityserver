@@ -19,7 +19,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "sensenet__Clients__spa__RepositoryHosts__0__PublicHost": "https://localhost:44362",
+        "sensenet__Clients__adminui__RepositoryHosts__0__PublicHost": "https://localhost:44362"
       },
       "applicationUrl": "https://localhost:44311"
     },
@@ -28,7 +30,9 @@
       "environmentVariables": {
         "IdentityServer__IssuerUri": "https://localhost:44311",
         "sensenet__Clients__adminui__RepositoryHosts__0__InternalHost": "http://SnWebApplication",
-        "sensenet__Clients__spa__RepositoryHosts__0__InternalHost": "http://SnWebApplication"
+        "sensenet__Clients__spa__RepositoryHosts__0__InternalHost": "http://SnWebApplication",
+        "sensenet__Clients__spa__RepositoryHosts__0__PublicHost": "https://localhost:44362",
+        "sensenet__Clients__adminui__RepositoryHosts__0__PublicHost": "https://localhost:44362"
       },
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",

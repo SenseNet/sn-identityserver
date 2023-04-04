@@ -91,9 +91,15 @@ namespace SenseNet.IdentityServer4
             {
                 if (ex != null)
                 {
-                    Logger?.LogError(ex,
-                        $"Error during getting clients from repository {Server?.Url} (retry attempt {4 - i}). " +
-                        ex.Message);
+                    var message = $"Error during getting clients from repository {Server?.Url} " +
+                                  $"(retry attempt {4 - i}). " + ex.Message;
+
+                    // log only on the last attempt
+                    if (i == 1)
+                        Logger?.LogError(ex, message);
+                    else
+                        Logger?.LogTrace(message);
+
                     return false;
                 }
 
