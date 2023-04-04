@@ -93,7 +93,7 @@ namespace SenseNet.IdentityServer4
                 
                 await LoadClientsFromRepositories().ConfigureAwait(false);
 
-                Logger.LogInformation($"Client cache updated. Client ids: {string.Join(", ", ClientCache.Keys)} | " +
+                Logger?.LogInformation($"Client cache updated. Client ids: {string.Join(", ", ClientCache.Keys)} | " +
                                       $"Allowed repositories: {string.Join(", ", AllowedRepositories)} | " +
                                       "Internal client ids: " +
                                       $"{string.Join(", ", InternalClientIdsByRepository.Select(ic => $"{ic.Value} ({ic.Key})"))}");
@@ -298,9 +298,18 @@ namespace SenseNet.IdentityServer4
                         ? repository.PublicHost
                         : repository.InternalHost;
 
+                    if (string.IsNullOrEmpty(hostUrl))
+                        continue;
+
                     if (!configuredRepositories.Contains(hostUrl))
                         configuredRepositories.Add(hostUrl);
                 }
+            }
+
+            if (!configuredRepositories.Any())
+            {
+                Logger.LogTrace("No repositories found in configured clients.");
+                return;
             }
 
             // iterate through all well-known repositories and load clients from their databases
@@ -321,6 +330,8 @@ namespace SenseNet.IdentityServer4
 
                 var connector = new SnClientConnector(server, null, Logger);
                 var clients = await connector.GetClientsAsync().ConfigureAwait(false);
+
+                Logger.LogTrace($"{clients.Length} clients loaded from {repository}");
 
                 foreach (var client in clients)
                 {
