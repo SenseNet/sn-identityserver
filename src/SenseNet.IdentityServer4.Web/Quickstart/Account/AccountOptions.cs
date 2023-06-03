@@ -19,6 +19,7 @@ namespace IdentityServer4.Quickstart.UI
         public static bool IncludeWindowsGroups = false;
 
         public static string InvalidCredentialsErrorMessage = "Invalid username or password";
+        public static string InvalidTwoFactorErrorMessage = "Two-factor authentication failed";
         public static string InvalidRepositoryErrorMessage = "Invalid repository.";
         public static string UserClientMismatchErrorMessage = "You cannot log in using this client.";
     }

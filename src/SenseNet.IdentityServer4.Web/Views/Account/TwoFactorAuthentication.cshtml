@@ -1,0 +1,112 @@
+@using Microsoft.Extensions.Options
+@using SenseNet.Client
+@using SenseNet.IdentityServer4.Configuration
+@model LoginViewModel
+@inject IOptions<LoginPageOptions> LoginOptions;
+@{
+    var loginConfig = LoginOptions.Value;
+}
+
+<div class="page login row">
+    <div class="column">
+        <div class="page-content">
+            <div class="card" style="max-width: 800px">
+                <div class="card-header">
+                    <figure class="logo-wrapper">
+                        <a href="https://sensenet.com" target="_blank">
+                            <img class="logo" src="/images/sensenet-logo.png" alt="sensenet logo" />
+                            <figcaption class="logo-caption">sensenet</figcaption>
+                        </a>
+                    </figure>
+                </div>
+                
+                @if (loginConfig.DisplayClientApplication)
+                {
+                    <div class="card-appinfo">
+                        @Model.SnApplicationUrl.TrimSchema()
+                    </div>
+                }
+                @if (loginConfig.DisplayRepositoryUrl)
+                {
+                    @if (!loginConfig.DisplayClientApplication)
+                    {
+                        <div class="card-appinfo"></div>
+                    }
+                    <div class="card-repoinfo">
+                        @Model.SnRepositoryUrl.TrimSchema()
+                    </div>
+                }
+
+                <form asp-controller="Account" asp-action="TwoFactorAuthentication" id="TwoFactorAuthentication">
+                    <div class="card-body">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <input type="hidden" asp-for="Username" />
+                        <input type="hidden" asp-for="Password" />
+                        <input type="hidden" asp-for="Token" />
+                        <input type="hidden" asp-for="MultiFactorEnabled" />
+                        <input type="hidden" asp-for="MultiFactorRegistered" />
+                        <input type="hidden" asp-for="QrCodeSetupImageUrl" />
+                        <input type="hidden" asp-for="ManualEntryKey" />
+                        <div class="form-error">
+                            @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+                            {
+                                <h1 class="card-title">
+                                    Invalid login request
+                                </h1>
+                                <p class="alert">There are no login schemes configured for this client.</p>
+
+                            }
+                            <partial name="_ValidationSummary" />
+                        </div>
+                        @if (Model.EnableLocalLogin)
+                        {
+                            <div class="card-appinfo">Two-factor authentication</div>
+                            <fieldset class="form-fieldset">
+                                @if (Model.MultiFactorEnabled)
+                                {
+                                    if (!Model.MultiFactorRegistered && !string.IsNullOrEmpty(Model.QrCodeSetupImageUrl))
+                                    {
+                                        <p>Before you log in, you have to register for two-factor authentication. To do this, you will have to use
+                                            the <strong>Microsoft Authenticator</strong>, <strong>Google Authenticator</strong> or any other
+                                            authenticator mobile app to scan this QR code. After a successful registration please provide
+                                            the code displayed in the app in the text box below.</p>
+                                        <p align="center">
+                                            <img id="qrcode2" src="@Model.QrCodeSetupImageUrl" alt="QR code" max-width="200px"/>
+                                        </p>
+                                        <p>Alternatively you may enter the following code manually in your authenticator application:</p>
+                                        <div class="card-repoinfo">
+                                            @Model.ManualEntryKey
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>
+                                            Please provide the code displayed in your authenticator app below.
+                                            If you do not have a registered account on your phone, please ask an administrator
+                                            to reset you account.
+                                        </p>
+                                    }
+
+                                    <div class="input-group">
+                                        <input class="form-control" autofocus asp-for="TwoFactorCode" placeholder="123456"
+                                               style="max-width: 100px; text-align: center; margin: auto">
+                                    </div>
+                                }
+
+                            </fieldset>
+                        }
+                    </div>
+
+                    @if (Model.MultiFactorEnabled)
+                    {
+                        <button class="btn btn-primary btn-block card-button" name="button" value="validate2fa">
+                            <span class="btn-animation">Validate code</span>
+                        </button>
+                    }
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+

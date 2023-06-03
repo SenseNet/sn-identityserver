@@ -147,21 +147,30 @@ namespace IdentityServer4.Quickstart.UI
                 if (SnClientStore.IsAllowedRepository(connector.Server?.Url))
                 {
                     var user = await connector.ValidateCredentialsAsync(model.Username, model.Password).ConfigureAwait(false);
+
+                    // redirect to the two-factor page if necessary
+                    if (user is { MultiFactorEnabled: true })
+                    {
+                        // set a temporary token on the user content
+                        var token = Guid.NewGuid().ToString();
+                        await connector.SetTokenAsync(user, token).ConfigureAwait(false);
+
+                        var vm1 = await BuildLoginViewModelAsync(model);
+                        vm1.MultiFactorEnabled = user.MultiFactorEnabled;
+                        vm1.MultiFactorRegistered = user.MultiFactorRegistered;
+                        vm1.QrCodeSetupImageUrl = user.QrCodeSetupImageUrl;
+                        vm1.ManualEntryKey = user.ManualEntryKey;
+                        vm1.Token = token;
+
+                        return View("TwoFactorAuthentication", vm1);
+                    }
+
                     if (user != null)
                     {
-                        // if the user has not agreed to terms and conditions yet, redirect to the intermediate page
-                        if (_loginOptions.ForceAgreeTerms && !user.AgreedToTerms)
-                        {
-                            _logger.LogTrace($"User {user.Username} has not yet agreed to terms of use.");
-
-                            // set a temporary token on the user content
-                            var token = Guid.NewGuid().ToString();
-                            await connector.SetTokenAsync(user, token).ConfigureAwait(false);
-
-                            var vm1 = await BuildLoginViewModelAsync(model);
-                            vm1.Token = token;
-                            return View("AgreeToTerms", vm1);
-                        }
+                        // redirect to the agree to terms page if necessary
+                        var agreeToTermsView = await GetAgreeToTermsView(user, connector, model).ConfigureAwait(false);
+                        if (agreeToTermsView != null)
+                            return agreeToTermsView;
 
                         if (await _clientStore.IsUserAllowedAsync(context?.ClientId, user.Id, connector)
                             .ConfigureAwait(false))
@@ -243,6 +252,80 @@ namespace IdentityServer4.Quickstart.UI
             
             // user might have clicked on a malicious link - should be logged
             throw new Exception("invalid return URL");
+        }
+
+        /// <summary>
+        /// Handle postback from two-factor authentication page
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TwoFactorAuthentication(LoginInputModel model, string button)
+        {
+            // check if we are in the context of an authorization request
+            var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+
+            // load and log in the user by the temporary token
+            if (button == "validate2fa" && !string.IsNullOrEmpty(model.Token))
+            {
+                var returnUrl = HttpContext?.Request?.Form["ReturnUrl"].FirstOrDefault();
+                var connector = await _clientConnectorFactory.CreateAsync(returnUrl)
+                    .ConfigureAwait(false);
+
+                _logger.LogTrace($"Two-factor page action parameters are valid. Username: {model.Username}, " +
+                                 $"token: {model.Token}, return url: {returnUrl}, server: {connector.Server?.Url}");
+
+                var user = await connector.GetUserByTokenAsync(model.Token).ConfigureAwait(false);
+                if (user != null)
+                {
+                    // validate QR code
+                    user = await connector.ValidateTwoFactorCodeAsync(user, model.TwoFactorCode).ConfigureAwait(false);
+
+                    if (user != null)
+                    {
+                        // redirect to the agree to terms page if necessary
+                        var agreeToTermsView = await GetAgreeToTermsView(user, connector, model).ConfigureAwait(false);
+                        if (agreeToTermsView != null)
+                            return agreeToTermsView;
+
+                        return await LogInUser(user, context, model);
+                    }
+                }
+                else
+                {
+                    _logger.LogTrace($"User not found by token {model.Token} in repository {connector.Server.Url}");
+                }
+
+                await _events.RaiseAsync(new UserLoginFailureEvent(model.Username, "invalid two-factor code",
+                    clientId: context?.ClientId));
+                ModelState.AddModelError(string.Empty, AccountOptions.InvalidTwoFactorErrorMessage);
+            }
+
+            // something went wrong
+            _logger?.LogWarning("Could not process two-factor authentication request. " +
+                                $"Button: {button}, User: {model.Username}, token: {model.Token}.");
+
+            // something went wrong, show form with error
+            var vm = await BuildLoginViewModelAsync(model);
+            return View(vm);
+        }
+
+        private async Task<IActionResult> GetAgreeToTermsView(SnUser user, SnClientConnector connector, LoginInputModel model)
+        {
+            // if the user has not agreed to terms and conditions yet, redirect to the intermediate page
+            if (_loginOptions.ForceAgreeTerms && !user.AgreedToTerms)
+            {
+                _logger.LogTrace($"User {user.Username} has not yet agreed to terms of use.");
+
+                // set a temporary token on the user content
+                var token = Guid.NewGuid().ToString();
+                await connector.SetTokenAsync(user, token).ConfigureAwait(false);
+
+                var vm1 = await BuildLoginViewModelAsync(model);
+                vm1.Token = token;
+                return View("AgreeToTerms", vm1);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -805,6 +888,10 @@ namespace IdentityServer4.Quickstart.UI
             var vm = await BuildLoginViewModelAsync(model.ReturnUrl);
             vm.Username = model.Username;
             vm.RememberLogin = model.RememberLogin;
+            vm.MultiFactorEnabled = model.MultiFactorEnabled;
+            vm.MultiFactorRegistered = model.MultiFactorRegistered;
+            vm.QrCodeSetupImageUrl = model.QrCodeSetupImageUrl;
+            vm.ManualEntryKey = model.ManualEntryKey;
             return vm;
         }
 
