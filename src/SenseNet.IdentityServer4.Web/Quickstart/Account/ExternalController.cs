@@ -179,6 +179,8 @@ namespace IdentityServer4.Quickstart.UI
                     throw new Exception("Error during registration.");
                 }
 
+                //UNDONE: implement two-factor authentication for external users
+
                 // New external user in snaas: redirect to the create repository page where the user will have to provide
                 // a password to set for the first public admin user in the new repo.
 
@@ -191,6 +193,8 @@ namespace IdentityServer4.Quickstart.UI
                     });
                 }
             }
+
+            //UNDONE: implement two-factor authentication for external users
 
             // if the user has not agreed yet to the terms of use, redirect to the intermediate page
             if (_loginOptions.ForceAgreeTerms && !user.AgreedToTerms)
