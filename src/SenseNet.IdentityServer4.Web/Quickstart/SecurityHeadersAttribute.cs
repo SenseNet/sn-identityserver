@@ -27,7 +27,7 @@ namespace IdentityServer4.Quickstart.UI
                           "https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; object-src 'none'; " +
                           "frame-src https://www.google.com; " +
                           "frame-ancestors http://*.sensenet.com https://www.google.com; sandbox allow-forms allow-same-origin " +
-                          "allow-scripts allow-popups allow-downloads; base-uri 'self';";
+                          "allow-scripts allow-popups allow-downloads; base-uri 'self'; img-src 'self' data:;";
                 // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
                 //csp += "upgrade-insecure-requests;";
                 // also an example if you need client images to be displayed from twitter

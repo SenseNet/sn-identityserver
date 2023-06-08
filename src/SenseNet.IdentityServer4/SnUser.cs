@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json.Linq;
 
 namespace SenseNet.IdentityServer4
 {
@@ -14,12 +15,20 @@ namespace SenseNet.IdentityServer4
         public bool Enabled { get; set; }
         public bool AgreedToTerms { get; set; }
 
+        public bool MultiFactorEnabled { get; set; }
+        public bool MultiFactorRegistered { get; set; }
+        public string QrCodeSetupImageUrl { get; set; }
+        public string ManualEntryKey { get; set; }
+
         public static SnUser FromClientContent(dynamic user)
         {
             // If this is null, it means the field does not exist, therefore
             // the feature is not needed, so we set it to True.
             var agreedObject = user.AgreedToTermsOfUse;
             var agreed = agreedObject == null || ((JValue)agreedObject).Value<bool>();
+
+            var twoFactorRegisteredObject = user.MultiFactorRegistered;
+            var twoFactorRegistered = twoFactorRegisteredObject == null || ((JValue)twoFactorRegisteredObject).Value<bool>();
 
             return new SnUser
             {
@@ -31,7 +40,8 @@ namespace SenseNet.IdentityServer4
                 SyncGuid = user.SyncGuid,
                 FullName = user.FullName,
                 Enabled = user.Enabled,
-                AgreedToTerms = agreed
+                AgreedToTerms = agreed,
+                MultiFactorRegistered = twoFactorRegistered
             };
         }
     }

@@ -47,6 +47,8 @@ namespace SenseNet.IdentityServer4
                 Path = "/Root"
             };
 
+            SnUser snUser = null;
+
             try
             {
                 Logger.LogTrace($"Validating user credentials of {userName} with repository {Server.Url}");
@@ -63,14 +65,80 @@ namespace SenseNet.IdentityServer4
                 // we have to load the full user object because the method above returns only a couple of fields
                 dynamic user = await Content.LoadAsync((int)response.id, Server).ConfigureAwait(false);
 
-                return SnUser.FromClientContent(user);
+                snUser = SnUser.FromClientContent(user);
             }
             catch (Exception ex)
             {
                 Logger?.LogError(ex, $"Error during validate credentials request. {ex.Message} User: {userName} Url: {Server.Url}");
             }
 
-            return null;
+            if (snUser == null)
+                return null;
+
+            try
+            {
+                request = new ODataRequest(Server)
+                {
+                    ActionName = "GetMultiFactorAuthenticationInfo",
+                    ContentId = snUser.Id
+                };
+
+                var response = await RESTCaller.GetResponseJsonAsync(request, Server, HttpMethod.Get).ConfigureAwait(false);
+
+                snUser.MultiFactorEnabled = response.multiFactorEnabled;
+                snUser.MultiFactorRegistered = response.multiFactorRegistered;
+                snUser.QrCodeSetupImageUrl = response.qrCodeSetupImageUrl;
+                snUser.ManualEntryKey = response.manualEntryKey;
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogTrace(ex, $"Error getting multifactor info {ex.Message} User: {userName} Url: {Server.Url}");
+            }
+
+            return snUser;
+        }
+
+        public async Task<SnUser> ValidateTwoFactorCodeAsync(SnUser user, string twoFactorCode)
+        {
+            // check if the repository is in the white list of accepted hosts
+            if (!SnClientStore.IsAllowedRepository(Server.Url))
+            {
+                Logger.LogTrace($"Repository {Server.Url} is NOT ALLOWED here, " +
+                                $"two-factor code validation is denied for user {user.Username}.");
+                return null;
+            }
+
+            var request = new ODataRequest(Server)
+            {
+                ActionName = "ValidateTwoFactorCode",
+                ContentId = user.Id
+            };
+
+            SnUser snUser = null;
+
+            try
+            {
+                Logger.LogTrace($"Validating two-factor code of {user.Username} with repository {Server.Url}");
+
+                var response = await RESTCaller.GetResponseJsonAsync(request, Server, HttpMethod.Post, new
+                {
+                    twoFactorCode
+                }).ConfigureAwait(false);
+
+                Logger.LogTrace("User validation succeeded. Loading user data of " +
+                                $"{user.Username} ({response.id}, {response.name}) from repository {Server.Url}");
+
+                // we have to load the full user object because the method above returns only a couple of fields
+                dynamic userContent = await Content.LoadAsync((int)response.id, Server).ConfigureAwait(false);
+
+                snUser = SnUser.FromClientContent(userContent);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, $"Error during validating two-factor code request. {ex.Message} User: {user.Username} Url: {Server.Url}");
+            }
+
+            return snUser;
         }
 
         public async Task<ClientInfo[]> GetClientsAsync()
