@@ -760,7 +760,8 @@ namespace IdentityServer4.Quickstart.UI
                 return View(new PasswordChangeViewModel
                 {
                     ReturnUrl = returnUrl,
-                    FullName = user.FullName ?? user.Username
+                    FullName = user.FullName ?? user.Username,
+                    Username = user.Username
                 });
             }
 
