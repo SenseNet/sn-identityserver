@@ -8,6 +8,7 @@ using SenseNet.IdentityServer4.Configuration;
 
 namespace SenseNet.IdentityServer4
 {
+    [Obsolete("Use the EmailSender feature from Tools instead.")]
     public interface IEmailSender
     {
         Task SendAsync(string email, string name, string subject, string message);

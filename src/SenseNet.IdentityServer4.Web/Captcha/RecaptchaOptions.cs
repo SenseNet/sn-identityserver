@@ -1,5 +1,11 @@
-﻿namespace SenseNet.IdentityServer4.Web.Captcha
+﻿using SenseNet.Tools.Configuration;
+
+namespace SenseNet.IdentityServer4.Web.Captcha
 {
+    /// <summary>
+    /// Captcha options for configuring Google reCaptcha.
+    /// </summary>
+    [OptionsClass(sectionName: "sensenet:Captcha")]
     public class RecaptchaOptions
     {
         //public string Type { get; set; } // from Google Service account

@@ -1,5 +1,6 @@
 ﻿namespace SenseNet.IdentityServer4.Configuration
 {
+    // SnDocs: legacy option class, not documented
     public class EmailSettings
     {
         public string Server { get; set; }
