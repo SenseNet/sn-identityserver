@@ -1,8 +1,11 @@
-﻿namespace SenseNet.IdentityServer4.Configuration
+﻿using SenseNet.Tools.Configuration;
+
+namespace SenseNet.IdentityServer4.Configuration
 {
     /// <summary>
     /// Options for login and registration screen on the sensenet authentication server.
     /// </summary>
+    [OptionsClass(sectionName: "sensenet:LoginPage")]
     public class LoginPageOptions
     {
         /// <summary>
