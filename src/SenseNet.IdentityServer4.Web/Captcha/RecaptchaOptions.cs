@@ -8,24 +8,43 @@ namespace SenseNet.IdentityServer4.Web.Captcha
     [OptionsClass(sectionName: "sensenet:Captcha")]
     public class RecaptchaOptions
     {
-        //public string Type { get; set; } // from Google Service account
-
-        public string ProjectId { get; set; } // from Google Service account
-
-        public string PrivateKeyId { get; set; } // from Google Service account
-
-        public string PrivateKey { get; set; } // from Google Service account
-
-        public string ClientEmail { get; set; } // from Google Service account
-
-        public string ClientId { get; set; } // from Google Service account
-
-        public string ClientCertUrl { get; set; } // from Google Service account
-
-        public string SiteKey { get; set; } // from Google reCaptcha
+        /// <summary>
+        /// The project id from Google Service account.
+        /// </summary>
+        public string ProjectId { get; set; }
 
         /// <summary>
-        /// 0.1 is worst (probably a bot), 0.9 is best (probably human)
+        /// The private key id from Google Service account.
+        /// </summary>
+        public string PrivateKeyId { get; set; }
+
+        /// <summary>
+        /// The private key from Google Service account.
+        /// </summary>
+        public string PrivateKey { get; set; }
+
+        /// <summary>
+        /// The client email from Google Service account.
+        /// </summary>
+        public string ClientEmail { get; set; }
+
+        /// <summary>
+        /// The client id from Google Service account.
+        /// </summary>
+        public string ClientId { get; set; }
+
+        /// <summary>
+        /// The client certificate url from Google Service account.
+        /// </summary>
+        public string ClientCertUrl { get; set; }
+
+        /// <summary>
+        /// The site key from Google reCaptcha.
+        /// </summary>
+        public string SiteKey { get; set; }
+
+        /// <summary>
+        /// The accepted score. 0.1 is worst (probably a bot), 0.9 is best (probably human).
         /// </summary>
         public float AcceptedScore { get; set; }
     }
