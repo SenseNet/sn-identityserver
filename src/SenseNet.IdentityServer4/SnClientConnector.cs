@@ -467,9 +467,15 @@ namespace SenseNet.IdentityServer4
             var rolePaths = await Retrier.RetryAsync(3, 500, async () =>
             {
                 // collect all roles of the user in a path array
-                return (await Content.LoadReferencesAsync(userId, "AllRoles", new[] {"Id", "Path", "Name"}, Server)
-                        .ConfigureAwait(false))
-                    .Select(c => c.Path).ToArray();
+                //return (await Content.LoadReferencesAsync(userId, "AllRoles", new[] {"Id", "Path", "Name"}, Server)
+                //        .ConfigureAwait(false))
+                //    .Select(c => c.Path).ToArray();
+                var allRoles = await Content.LoadReferencesAsync(new ODataRequest(Server)
+                {
+                    ActionName = "AllRoles",
+                    Select = new[] { "Id", "Path", "Name" }
+                }).ConfigureAwait(false);
+                return allRoles.Select(x => x.Path);
             }, (strings, retryCount, ex) =>
             {
                 // no error, no problem
