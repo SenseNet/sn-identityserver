@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "SenseNet.IdentityServer4.sln",
+    "projects": [
+      "SenseNet.IdentityServer4\\SenseNet.IdentityServer4.csproj",
+    ]
+  }
+}
