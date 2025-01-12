@@ -35,7 +35,7 @@
 		<PackageReference Include="IdentityServer4" Version="3.0.1" />
 		<PackageReference Include="MailChimp.Net.V3" Version="5.2.0" />
 		<PackageReference Include="SenseNet.Client" Version="3.0.7" />
-		<PackageReference Include="SenseNet.Tools" Version="3.2.13" />
+		<PackageReference Include="SenseNet.Tools" Version="3.2.13.1" />
 	</ItemGroup>
 
 </Project>
